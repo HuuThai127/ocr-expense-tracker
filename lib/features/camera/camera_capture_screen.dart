@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -182,9 +183,42 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> with WidgetsB
   /// Provides a realistic sample receipt demo flow for testing / emulator grading
   Future<void> _useSampleReceiptDemo(String merchant, double amount, String date, String sampleOcr) async {
     try {
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder, const Rect.fromLTWH(0, 0, 800, 1200));
+      final paint = Paint()..color = Colors.white;
+      canvas.drawRect(const Rect.fromLTWH(0, 0, 800, 1200), paint);
+
+      // Receipt border line
+      final borderPaint = Paint()
+        ..color = const Color(0xFFCBD5E1)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3;
+      canvas.drawRect(const Rect.fromLTWH(20, 20, 760, 1160), borderPaint);
+
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: sampleOcr,
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 26,
+            fontFamily: 'monospace',
+            fontWeight: FontWeight.w600,
+            height: 1.6,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      textPainter.layout(maxWidth: 720);
+      textPainter.paint(canvas, const Offset(40, 60));
+
+      final picture = recorder.endRecording();
+      final img = await picture.toImage(800, 1200);
+      final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+      final bytes = byteData!.buffer.asUint8List();
+
       final tempDir = await getTemporaryDirectory();
-      final sampleFile = File('${tempDir.path}/sample_receipt_${DateTime.now().millisecondsSinceEpoch}.txt');
-      await sampleFile.writeAsString(sampleOcr);
+      final sampleFile = File('${tempDir.path}/sample_receipt_${DateTime.now().millisecondsSinceEpoch}.png');
+      await sampleFile.writeAsBytes(bytes);
 
       if (!mounted) return;
 

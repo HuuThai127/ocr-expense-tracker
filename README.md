@@ -1,10 +1,10 @@
 # OCR Expense Tracker (Mini-Project 3)
 
-[![Flutter Test](https://img.shields.io/badge/Flutter%20Test-29%2F29%20Passed-emerald.svg)](file:///e:/Mini_Project3/test)
-[![Dart Analyze](https://img.shields.io/badge/Dart%20Analyze-0%20Issues-brightgreen.svg)](file:///e:/Mini_Project3/analysis_options.yaml)
-[![Android Build](https://img.shields.io/badge/Android%20APK-Built%20Successfully-blue.svg)](file:///e:/Mini_Project3/build/app/outputs/flutter-apk/app-debug.apk)
-[![On-Device AI](https://img.shields.io/badge/ML%20Kit-100%25%20On--Device-indigo.svg)](file:///e:/Mini_Project3/lib/services/ocr/receipt_ocr_service.dart)
-[![Charts](https://img.shields.io/badge/Charts-CustomPainter%20Only-orange.svg)](file:///e:/Mini_Project3/lib/painters)
+[![Flutter Test](https://img.shields.io/badge/Flutter%20Test-29%2F29%20Passed-emerald.svg)](test)
+[![Dart Analyze](https://img.shields.io/badge/Dart%20Analyze-0%20Issues-brightgreen.svg)](analysis_options.yaml)
+[![Android Build](https://img.shields.io/badge/Android%20APK-Built%20Successfully-blue.svg)](build/app/outputs/flutter-apk/app-debug.apk)
+[![On-Device AI](https://img.shields.io/badge/ML%20Kit-100%25%20On--Device-indigo.svg)](lib/services/ocr/receipt_ocr_service.dart)
+[![Charts](https://img.shields.io/badge/Charts-CustomPainter%20Only-orange.svg)](lib/painters)
 
 An offline-first, privacy-focused intelligent mobile expense tracker built with **Flutter**, **Google ML Kit Text Recognition**, **SQLite (sqflite)**, and pure **CustomPainter** data visualization. 
 
@@ -199,8 +199,19 @@ flutter build apk --debug
 
 ---
 
-## 📄 Submission Documents
+## 📄 Submission Deliverables & Status
 
-- **Technical Report Markdown**: [REPORT.md](file:///e:/Mini_Project3/REPORT.md)
-- **Technical Report PDF (2–4 Pages)**: [REPORT.pdf](file:///e:/Mini_Project3/REPORT.pdf)
-- **Source Code Repository**: Clean, ready for public submission with zero secrets committed.
+- **GitHub Repository**: *Not configured yet* (Local branch `master` is clean and fully verified; no remote origin is set in `git remote -v`).
+- **Demo Video Walkthrough (2–3 minutes)**: *Flow prepared and verified on device/emulator* (Awaiting user recording upload URL):
+  1. **Home Dashboard**: Total expenditure banner, On-Device AI badge, category summaries, and recent expense cards.
+  2. **Camera Scan**: Real-time viewfinder preview, receipt framing mask, flash toggle (`torch`/`auto`/`off`), and tap-to-focus indicator.
+  3. **Crop & Framing**: Interactive bounding box adjustment and perspective cropping.
+  4. **On-Device ML Kit OCR**: Local text recognition profiling (`google_mlkit_text_recognition`) with measured latency.
+  5. **Review & Manual Edit**: Automated field extraction (merchant, amount, date) with full user editing and category pills.
+  6. **Save to SQLite**: Local relational database persistence (`sqflite`) and persistent cropped receipt image storage.
+  7. **Persistence on Restart**: Relaunch verification confirming records and calculations survive application termination.
+  8. **CustomPainter Analytics**: Pure canvas Donut and Weekly Bar charts with touch interaction and radial slice pop-out.
+- **Technical Report Markdown**: [REPORT.md](REPORT.md)
+- **Technical Report PDF (3 Pages)**: [REPORT.pdf](REPORT.pdf)
+- **Debug APK Artifact**: `build/app/outputs/flutter-apk/app-debug.apk` (192 MB)
+

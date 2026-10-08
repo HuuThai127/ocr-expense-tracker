@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_constants.dart';
 import '../features/expenses/expense_controller.dart';
-import '../features/home/home_screen.dart';
 import 'routes.dart';
 import 'theme.dart';
 
@@ -19,7 +18,7 @@ class OcrExpenseTrackerApp extends StatelessWidget {
         title: AppConstants.appName,
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: const HomeScreen(),
+        initialRoute: AppRoutes.home,
         routes: AppRoutes.routes,
       ),
     );

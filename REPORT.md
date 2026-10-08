@@ -11,8 +11,8 @@
   1. Nguyen Van A — Student ID: 22IT001 — Role: Lead Architecture & On-Device ML/OCR Engine — Contribution: 50%
   2. Tran Thi B — Student ID: 22IT002 — Role: CustomPainter Visualization, UI & SQLite Storage — Contribution: 50%
 * **🔗 Live Demo / APK Download:** `build/app/outputs/flutter-apk/app-debug.apk` (Android Debug Build, 192 MB)
-* **💻 GitHub Repository:** `https://github.com/vku-mobile/ocr-expense-tracker-flutter`
-* **🎥 Video Demo Walkthrough:** Demonstration Video / Built-in Camera & Sample Demo Mode
+* **💻 GitHub Repository:** *Not configured* (Local branch `master`, no remote origin configured in `git remote -v`)
+* **🎥 Video Demo Walkthrough:** *Flow prepared* (Home → Camera Scan → On-Device ML Kit OCR → Review/Edit → Save → Restart Persistence → Interactive Analytics)
 
 ---
 
