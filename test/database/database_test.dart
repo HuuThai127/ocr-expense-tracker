@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ocr_expense_tracker/core/constants/app_constants.dart';
 import 'package:ocr_expense_tracker/data/database/app_database.dart';
 import 'package:ocr_expense_tracker/data/database/expense_dao.dart';
+import 'package:ocr_expense_tracker/data/database/web_database.dart';
 import 'package:ocr_expense_tracker/data/models/category_enum.dart';
 import 'package:ocr_expense_tracker/data/models/expense_model.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -123,6 +124,10 @@ void main() {
       expect(categories[ExpenseCategory.food], equals(100000.0));
       expect(categories[ExpenseCategory.study], equals(150000.0));
       expect(categories[ExpenseCategory.travel], equals(0.0));
+    });
+
+    test('initWebDatabase executes safely across platform environments', () {
+      expect(() => initWebDatabase(), returnsNormally);
     });
   });
 }

@@ -1,5 +1,19 @@
 {
   "outputDirectory": "build/web",
+  "headers": [
+    {
+      "source": "/sqlite3.wasm",
+      "headers": [
+        { "key": "Content-Type", "value": "application/wasm" }
+      ]
+    },
+    {
+      "source": "/sqflite_sw.js",
+      "headers": [
+        { "key": "Content-Type", "value": "application/javascript" }
+      ]
+    }
+  ],
   "routes": [
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "/index.html" }
