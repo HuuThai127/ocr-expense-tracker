@@ -31,16 +31,281 @@
 
   <title>ocr_expense_tracker</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- iPhone Safari inline camera enforcement styles -->
+  <style>
+    video {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      object-fit: cover !important;
+    }
+    /* Hide native iOS WebKit media player controls entirely */
+    video::-webkit-media-controls {
+      display: none !important;
+      -webkit-appearance: none !important;
+    }
+    video::-webkit-media-controls-enclosure {
+      display: none !important;
+      -webkit-appearance: none !important;
+    }
+    video::-webkit-media-controls-panel {
+      display: none !important;
+      -webkit-appearance: none !important;
+    }
+    video::-webkit-media-controls-start-playback-button {
+      display: none !important;
+      -webkit-appearance: none !important;
+    }
+  </style>
+
+  <!-- iPhone Safari inline camera enforcement script -->
+  <script>
+    (function() {
+      'use strict';
+
+      function configureInlineVideo(video) {
+        if (!video || video.nodeName !== 'VIDEO') return;
+
+        // Attributes required by WebKit / iOS Safari to avoid native AVPlayer fullscreen
+        video.setAttribute('playsinline', 'true');
+        video.setAttribute('webkit-playsinline', 'true');
+        video.setAttribute('x-webkit-airplay', 'deny');
+        video.removeAttribute('controls');
+
+        // Properties
+        video.playsInline = true;
+        video.webkitPlaysInline = true;
+        video.muted = true;
+        video.defaultMuted = true;
+        video.autoplay = true;
+        video.controls = false;
+
+        if ('disablePictureInPicture' in video) {
+          video.disablePictureInPicture = true;
+        }
+        if ('disableRemotePlayback' in video) {
+          video.disableRemotePlayback = true;
+        }
+
+        // Block native WebKit fullscreen calls
+        video.webkitEnterFullscreen = function() {
+          console.warn('[Camera] Blocked webkitEnterFullscreen');
+          return false;
+        };
+        video.webkitEnterFullScreen = function() {
+          console.warn('[Camera] Blocked webkitEnterFullScreen');
+          return false;
+        };
+        video.requestFullscreen = function() {
+          console.warn('[Camera] Blocked requestFullscreen');
+          return Promise.reject(new Error('Fullscreen disabled'));
+        };
+        video.webkitRequestFullscreen = function() {
+          console.warn('[Camera] Blocked webkitRequestFullscreen');
+          return Promise.reject(new Error('Fullscreen disabled'));
+        };
+
+        if (!video.__inlineListenersAttached) {
+          video.__inlineListenersAttached = true;
+
+          // Catch and abort any native WebKit fullscreen events
+          video.addEventListener('webkitbeginfullscreen', function(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            console.warn('[Camera] Intercepted webkitbeginfullscreen event');
+            if (typeof video.webkitExitFullscreen === 'function') {
+              try { video.webkitExitFullscreen(); } catch (_) {}
+            }
+          }, true);
+
+          // Auto-resume if Safari pauses the video while the stream is active and attached
+          video.addEventListener('pause', function() {
+            if (video.srcObject && !video.ended && document.contains(video)) {
+              setTimeout(function() {
+                if (video.srcObject && video.paused && document.contains(video)) {
+                  video.play().catch(function(_) {});
+                }
+              }, 50);
+            }
+          });
+
+          // When stream metadata is loaded, re-verify inline and start playback
+          video.addEventListener('loadedmetadata', function() {
+            video.playsInline = true;
+            video.webkitPlaysInline = true;
+            video.muted = true;
+            video.controls = false;
+            video.removeAttribute('controls');
+            if (video.paused && video.srcObject) {
+              video.play().catch(function(err) {
+                console.warn('[Camera] play on loadedmetadata error:', err);
+              });
+            }
+          });
+        }
+      }
+
+      // 1. Monkey-patch document.createElement to intercept new <video> elements
+      const originalCreateElement = document.createElement;
+      document.createElement = function(tagName, options) {
+        const el = originalCreateElement.call(document, tagName, options);
+        if (tagName && typeof tagName === 'string' && tagName.toLowerCase() === 'video') {
+          configureInlineVideo(el);
+        }
+        return el;
+      };
+
+      // 2. Monkey-patch HTMLMediaElement.prototype.srcObject
+      const originalSrcObjectDescriptor = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'srcObject');
+      if (originalSrcObjectDescriptor && originalSrcObjectDescriptor.set) {
+        Object.defineProperty(HTMLMediaElement.prototype, 'srcObject', {
+          set: function(stream) {
+            configureInlineVideo(this);
+            const res = originalSrcObjectDescriptor.set.call(this, stream);
+            if (stream && this.nodeName === 'VIDEO') {
+              configureInlineVideo(this);
+              // Explicitly call play() shortly after stream is attached on iOS Safari
+              setTimeout(() => {
+                if (this.paused && this.srcObject) {
+                  this.play().catch(function(err) {
+                    console.warn('[Camera] play after srcObject attach failed:', err);
+                  });
+                }
+              }, 20);
+            }
+            return res;
+          },
+          get: function() {
+            return originalSrcObjectDescriptor.get.call(this);
+          },
+          configurable: true,
+          enumerable: true
+        });
+      }
+
+      // 3. Monkey-patch HTMLVideoElement.prototype.play
+      const originalPlay = HTMLVideoElement.prototype.play;
+      HTMLVideoElement.prototype.play = function() {
+        configureInlineVideo(this);
+        return originalPlay.apply(this, arguments);
+      };
+
+      // 4. Override global fullscreen methods on HTMLVideoElement prototype
+      HTMLVideoElement.prototype.webkitEnterFullscreen = function() {
+        console.warn('[Camera] Prototype: Blocked webkitEnterFullscreen');
+        return false;
+      };
+      HTMLVideoElement.prototype.webkitEnterFullScreen = function() {
+        console.warn('[Camera] Prototype: Blocked webkitEnterFullScreen');
+        return false;
+      };
+      HTMLVideoElement.prototype.requestFullscreen = function() {
+        console.warn('[Camera] Prototype: Blocked requestFullscreen');
+        return Promise.reject(new Error('Fullscreen disabled'));
+      };
+      HTMLVideoElement.prototype.webkitRequestFullscreen = function() {
+        console.warn('[Camera] Prototype: Blocked webkitRequestFullscreen');
+        return Promise.reject(new Error('Fullscreen disabled'));
+      };
+
+      // 5. Intercept getUserMedia to immediately prepare video elements
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+        navigator.mediaDevices.getUserMedia = async function(constraints) {
+          const stream = await originalGetUserMedia(constraints);
+          setTimeout(function() {
+            document.querySelectorAll('video').forEach(function(video) {
+              if (video.srcObject === stream || (video.srcObject && video.srcObject.id === stream.id)) {
+                configureInlineVideo(video);
+                if (video.paused) {
+                  video.play().catch(function(_) {});
+                }
+              }
+            });
+          }, 50);
+          return stream;
+        };
+      }
+
+      // 6. MutationObserver to catch any dynamically injected video elements or attribute changes
+      const observer = new MutationObserver(function(mutations) {
+        for (const mutation of mutations) {
+          if (mutation.type === 'childList') {
+            mutation.addedNodes.forEach(function(node) {
+              if (node.nodeName === 'VIDEO') {
+                configureInlineVideo(node);
+              } else if (node.querySelectorAll) {
+                node.querySelectorAll('video').forEach(configureInlineVideo);
+              }
+            });
+          } else if (mutation.type === 'attributes' && mutation.target.nodeName === 'VIDEO') {
+            const v = mutation.target;
+            if (mutation.attributeName === 'controls' && v.hasAttribute('controls')) {
+              v.removeAttribute('controls');
+              v.controls = false;
+            }
+          }
+        }
+      });
+
+      if (document.documentElement) {
+        observer.observe(document.documentElement, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['controls', 'playsinline', 'webkit-playsinline']
+        });
+      }
+
+      // 7. Global event interception for webkitbeginfullscreen
+      window.addEventListener('webkitbeginfullscreen', function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (e.target && typeof e.target.webkitExitFullscreen === 'function') {
+          try { e.target.webkitExitFullscreen(); } catch (_) {}
+        }
+      }, true);
+
+      document.addEventListener('webkitbeginfullscreen', function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (e.target && typeof e.target.webkitExitFullscreen === 'function') {
+          try { e.target.webkitExitFullscreen(); } catch (_) {}
+        }
+      }, true);
+
+      // 8. Lifecycle handlers for Safari page visibility & pagehide/pageshow
+      function resumeActiveVideos() {
+        document.querySelectorAll('video').forEach(function(v) {
+          if (v.srcObject && v.paused && document.contains(v)) {
+            configureInlineVideo(v);
+            v.play().catch(function(e) {
+              console.warn('[Camera] Failed to resume on visibility change:', e);
+            });
+          }
+        });
+      }
+
+      window.addEventListener('pageshow', resumeActiveVideos);
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+          resumeActiveVideos();
+        }
+      });
+
+      // Global helper exposed on window
+      window.__fixCameraVideos = function() {
+        document.querySelectorAll('video').forEach(function(v) {
+          configureInlineVideo(v);
+          if (v.srcObject && v.paused) {
+            v.play().catch(function(_) {});
+          }
+        });
+      };
+    })();
+  </script>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

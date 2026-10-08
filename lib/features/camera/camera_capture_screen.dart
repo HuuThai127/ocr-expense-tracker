@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'crop_receipt_screen.dart';
+import 'web_camera_fix.dart';
 
 class CameraCaptureScreen extends StatefulWidget {
   const CameraCaptureScreen({super.key});
@@ -34,24 +35,39 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> with WidgetsB
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _isCameraInitialized = false;
     _controller?.dispose();
+    _controller = null;
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (_controller == null || !_controller!.value.isInitialized) return;
-    if (state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      _isCameraInitialized = false;
       _controller?.dispose();
+      _controller = null;
     } else if (state == AppLifecycleState.resumed) {
-      _initializeCamera();
+      if (mounted) {
+        _initializeCamera();
+      }
     }
   }
 
   Future<void> _initializeCamera() async {
+    if (_controller != null) {
+      try {
+        await _controller!.dispose();
+      } catch (_) {}
+      _controller = null;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _isCameraInitialized = false;
     });
 
     try {
@@ -87,6 +103,9 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> with WidgetsB
       );
 
       await _controller!.initialize();
+      if (kIsWeb) {
+        fixWebCameraVideos();
+      }
       if (!kIsWeb) {
         try {
           _flashMode = _controller!.value.flashMode;
@@ -187,7 +206,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> with WidgetsB
       final Uint8List bytes = await imageFile.readAsBytes();
       if (!mounted) return;
 
-      Navigator.push(
+      await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => CropReceiptScreen(
@@ -196,6 +215,13 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> with WidgetsB
           ),
         ),
       );
+
+      if (mounted && kIsWeb) {
+        fixWebCameraVideos();
+        if (_controller == null || !_controller!.value.isInitialized) {
+          _initializeCamera();
+        }
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
