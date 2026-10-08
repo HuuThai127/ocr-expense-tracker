@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../core/utils/currency_formatter.dart';
 import '../core/utils/date_formatter.dart';
@@ -19,7 +20,8 @@ class ExpenseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cat = expense.category;
-    final hasImage = expense.receiptImagePath != null &&
+    final hasImage = !kIsWeb &&
+        expense.receiptImagePath != null &&
         File(expense.receiptImagePath!).existsSync();
 
     return Container(

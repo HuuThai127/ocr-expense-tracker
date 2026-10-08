@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/utils/currency_formatter.dart';
@@ -54,7 +55,8 @@ class ExpenseDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cat = expense.category;
-    final hasImage = expense.receiptImagePath != null &&
+    final hasImage = !kIsWeb &&
+        expense.receiptImagePath != null &&
         File(expense.receiptImagePath!).existsSync();
 
     return Scaffold(

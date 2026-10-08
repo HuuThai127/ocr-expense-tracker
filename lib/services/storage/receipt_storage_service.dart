@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../../core/constants/app_constants.dart';
@@ -20,6 +21,7 @@ class ReceiptStorageService {
 
   /// Copies an image file into the managed app directory and returns its persisted path
   Future<String> saveReceiptImage(File sourceFile) async {
+    if (kIsWeb) return '';
     try {
       final storageDir = await _getStorageDirectory();
       final ext = p.extension(sourceFile.path).isNotEmpty
@@ -37,6 +39,7 @@ class ReceiptStorageService {
 
   /// Saves raw image bytes directly (e.g. from cropping) and returns the persisted path
   Future<String> saveReceiptBytes(List<int> bytes, {String extension = '.jpg'}) async {
+    if (kIsWeb) return '';
     try {
       final storageDir = await _getStorageDirectory();
       final fileName = 'receipt_${DateTime.now().millisecondsSinceEpoch}$extension';
@@ -52,7 +55,7 @@ class ReceiptStorageService {
 
   /// Deletes a receipt image file if it exists
   Future<bool> deleteReceiptImage(String? filePath) async {
-    if (filePath == null || filePath.isEmpty) return false;
+    if (kIsWeb || filePath == null || filePath.isEmpty) return false;
     try {
       final file = File(filePath);
       if (await file.exists()) {

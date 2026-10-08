@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'crop_receipt_screen.dart';
@@ -69,17 +70,28 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> with WidgetsB
         orElse: () => _cameras.first,
       );
 
+      ImageFormatGroup formatGroup = ImageFormatGroup.jpeg;
+      if (!kIsWeb) {
+        try {
+          if (Platform.isIOS) {
+            formatGroup = ImageFormatGroup.bgra8888;
+          }
+        } catch (_) {}
+      }
+
       _controller = CameraController(
         camera,
         ResolutionPreset.high,
         enableAudio: false,
-        imageFormatGroup: Platform.isAndroid
-            ? ImageFormatGroup.jpeg
-            : ImageFormatGroup.bgra8888,
+        imageFormatGroup: formatGroup,
       );
 
       await _controller!.initialize();
-      _flashMode = _controller!.value.flashMode;
+      if (!kIsWeb) {
+        try {
+          _flashMode = _controller!.value.flashMode;
+        } catch (_) {}
+      }
 
       if (mounted) {
         setState(() {
@@ -98,6 +110,18 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> with WidgetsB
   }
 
   Future<void> _toggleFlash() async {
+    if (kIsWeb) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Flash control is not supported by web browsers'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Color(0xFF475569),
+          ),
+        );
+      }
+      return;
+    }
     if (_controller == null || !_controller!.value.isInitialized) return;
 
     try {
@@ -125,7 +149,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> with WidgetsB
   }
 
   Future<void> _onTapToFocus(TapDownDetails details, BoxConstraints constraints) async {
-    if (_controller == null || !_controller!.value.isInitialized) return;
+    if (kIsWeb || _controller == null || !_controller!.value.isInitialized) return;
 
     final offset = Offset(
       details.localPosition.dx / constraints.maxWidth,
@@ -160,12 +184,16 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> with WidgetsB
 
     try {
       final XFile imageFile = await _controller!.takePicture();
+      final Uint8List bytes = await imageFile.readAsBytes();
       if (!mounted) return;
 
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => CropReceiptScreen(imageFile: File(imageFile.path)),
+          builder: (context) => CropReceiptScreen(
+            imageBytes: bytes,
+            imageFile: kIsWeb ? null : File(imageFile.path),
+          ),
         ),
       );
     } catch (e) {
@@ -216,16 +244,26 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> with WidgetsB
       final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
       final bytes = byteData!.buffer.asUint8List();
 
-      final tempDir = await getTemporaryDirectory();
-      final sampleFile = File('${tempDir.path}/sample_receipt_${DateTime.now().millisecondsSinceEpoch}.png');
-      await sampleFile.writeAsBytes(bytes);
+      File? sampleFile;
+      if (!kIsWeb) {
+        try {
+          final tempDir = await getTemporaryDirectory();
+          sampleFile = File('${tempDir.path}/sample_receipt_${DateTime.now().millisecondsSinceEpoch}.png');
+          await sampleFile.writeAsBytes(bytes);
+        } catch (e) {
+          debugPrint('Failed to save temp file on native: $e');
+        }
+      }
 
       if (!mounted) return;
 
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => CropReceiptScreen(imageFile: sampleFile),
+          builder: (context) => CropReceiptScreen(
+            imageBytes: bytes,
+            imageFile: sampleFile,
+          ),
         ),
       );
     } catch (e) {
@@ -368,11 +406,11 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> with WidgetsB
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // 1. Camera Viewfinder with Tap-To-Focus
+          // 1. Camera Viewfinder with Tap-To-Focus (Tap-to-focus disabled on Web)
           LayoutBuilder(
             builder: (context, constraints) {
               return GestureDetector(
-                onTapDown: (details) => _onTapToFocus(details, constraints),
+                onTapDown: kIsWeb ? null : (details) => _onTapToFocus(details, constraints),
                 child: SizedBox(
                   width: constraints.maxWidth,
                   height: constraints.maxHeight,
@@ -385,8 +423,8 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> with WidgetsB
           // 2. Receipt Framing Viewfinder Overlay
           const _ReceiptFramingOverlay(),
 
-          // 3. Tap Focus Ring Animation
-          if (_showFocusRing && _focusPoint != null)
+          // 3. Tap Focus Ring Animation (Native only)
+          if (!kIsWeb && _showFocusRing && _focusPoint != null)
             Positioned(
               left: _focusPoint!.dx - 32,
               top: _focusPoint!.dy - 32,
@@ -413,18 +451,21 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> with WidgetsB
                   ),
                   Row(
                     children: [
-                      // Flash Toggle
+                      // Flash Toggle (clearly disabled on Web)
                       IconButton(
                         icon: Icon(
-                          _flashMode == FlashMode.torch
-                              ? Icons.flash_on_rounded
-                              : _flashMode == FlashMode.auto
-                                  ? Icons.flash_auto_rounded
-                                  : Icons.flash_off_rounded,
-                          color: _flashMode != FlashMode.off
+                          kIsWeb
+                              ? Icons.flash_off_rounded
+                              : (_flashMode == FlashMode.torch
+                                  ? Icons.flash_on_rounded
+                                  : _flashMode == FlashMode.auto
+                                      ? Icons.flash_auto_rounded
+                                      : Icons.flash_off_rounded),
+                          color: (!kIsWeb && _flashMode != FlashMode.off)
                               ? const Color(0xFFFACC15)
-                              : Colors.white,
+                              : Colors.white54,
                         ),
+                        tooltip: kIsWeb ? 'Flash unsupported on web' : 'Toggle Flash',
                         onPressed: _toggleFlash,
                       ),
                       // Sample Receipt Picker for quick evaluation
@@ -447,9 +488,11 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> with WidgetsB
             bottom: 32,
             child: Column(
               children: [
-                const Text(
-                  'Tap viewfinder to focus • Hold steady',
-                  style: TextStyle(
+                Text(
+                  kIsWeb
+                      ? 'Align receipt within frame • Tap capture below'
+                      : 'Tap viewfinder to focus • Hold steady',
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,

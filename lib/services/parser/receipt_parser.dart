@@ -2,6 +2,17 @@ import '../../core/utils/date_formatter.dart';
 import '../../data/models/parsed_receipt.dart';
 
 class ReceiptParser {
+  /// Deterministic sample OCR text for web demo mode and emulator evaluation
+  static const String sampleReceiptText =
+      'CO.OPMART CONG HOA\n'
+      'Dia chi: 497 Hoa Binh, Q. Tan Phu\n'
+      'Ngay: 07/10/2026 18:30\n'
+      'Sua tuoi Vinamilk: 35.000\n'
+      'Banh mi sandwich: 22.000\n'
+      'Thit heo ba roi: 128.000\n'
+      'TONG CONG: 185.000 VND\n'
+      'Cam on quy khach!';
+
   /// Keywords indicating the grand total line in Vietnamese / English receipts
   static final List<String> _totalKeywords = [
     'grand total',

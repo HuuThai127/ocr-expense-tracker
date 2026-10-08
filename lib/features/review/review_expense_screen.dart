@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/utils/date_formatter.dart';
@@ -11,17 +12,21 @@ import '../../widgets/category_chip.dart';
 import '../expenses/expense_controller.dart';
 
 class ReviewExpenseScreen extends StatefulWidget {
-  final File imageFile;
+  final File? imageFile;
+  final Uint8List? imageBytes;
   final ParsedReceipt parsedReceipt;
   final String rawOcrText;
   final int latencyMs;
+  final bool isWebDemo;
 
   const ReviewExpenseScreen({
     super.key,
-    required this.imageFile,
+    this.imageFile,
+    this.imageBytes,
     required this.parsedReceipt,
     required this.rawOcrText,
     required this.latencyMs,
+    this.isWebDemo = false,
   });
 
   @override
@@ -140,9 +145,12 @@ class _ReviewExpenseScreenState extends State<ReviewExpenseScreen> {
 
     try {
       final controller = Provider.of<ExpenseController>(context, listen: false);
-      final storageService = ReceiptStorageService();
-      // Ensure image is persisted in app document storage
-      final permanentImagePath = await storageService.saveReceiptImage(widget.imageFile);
+      String? permanentImagePath;
+      if (!kIsWeb && widget.imageFile != null) {
+        final storageService = ReceiptStorageService();
+        // Ensure image is persisted in app document storage
+        permanentImagePath = await storageService.saveReceiptImage(widget.imageFile!);
+      }
 
       final newExpense = ExpenseModel(
         merchantName: _merchantController.text.trim(),
@@ -288,6 +296,49 @@ class _ReviewExpenseScreenState extends State<ReviewExpenseScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Web Demo Mode notification banner
+              if (widget.isWebDemo || kIsWeb)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEEF2FF),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFC7D2FE)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.info_rounded, color: Color(0xFF4F46E5), size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              'Web Demo Mode',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF312E81),
+                                fontSize: 13,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Google ML Kit OCR is available on Android/iOS. Web Demo Mode uses sample OCR text.',
+                              style: TextStyle(
+                                color: Color(0xFF4338CA),
+                                fontSize: 12,
+                                height: 1.35,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
               // 1. Receipt Thumbnail & Detection Status Card
               Container(
                 padding: const EdgeInsets.all(14),
@@ -305,15 +356,31 @@ class _ReviewExpenseScreenState extends State<ReviewExpenseScreen> {
                         width: 72,
                         height: 90,
                         color: const Color(0xFFF1F5F9),
-                        child: Image.file(
-                          widget.imageFile,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => const Icon(
-                            Icons.receipt_long_rounded,
-                            size: 32,
-                            color: Color(0xFF94A3B8),
-                          ),
-                        ),
+                        child: widget.imageBytes != null
+                            ? Image.memory(
+                                widget.imageBytes!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => const Icon(
+                                  Icons.receipt_long_rounded,
+                                  size: 32,
+                                  color: Color(0xFF94A3B8),
+                                ),
+                              )
+                            : (!kIsWeb && widget.imageFile != null)
+                                ? Image.file(
+                                    widget.imageFile!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) => const Icon(
+                                      Icons.receipt_long_rounded,
+                                      size: 32,
+                                      color: Color(0xFF94A3B8),
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.receipt_long_rounded,
+                                    size: 32,
+                                    color: Color(0xFF94A3B8),
+                                  ),
                       ),
                     ),
                     const SizedBox(width: 14),

@@ -1,18 +1,22 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 import '../../core/errors/app_exception.dart';
 import '../../services/ocr/receipt_ocr_service.dart';
+import '../../services/parser/receipt_parser.dart';
 import '../../services/storage/receipt_storage_service.dart';
 import '../review/review_expense_screen.dart';
 
 class CropReceiptScreen extends StatefulWidget {
-  final File imageFile;
+  final File? imageFile;
+  final Uint8List? imageBytes;
 
   const CropReceiptScreen({
     super.key,
-    required this.imageFile,
-  });
+    this.imageFile,
+    this.imageBytes,
+  }) : assert(imageFile != null || imageBytes != null, 'Either imageFile or imageBytes must be provided');
 
   @override
   State<CropReceiptScreen> createState() => _CropReceiptScreenState();
@@ -37,20 +41,20 @@ class _CropReceiptScreenState extends State<CropReceiptScreen> {
   Future<void> _processAndProceed({bool crop = true}) async {
     setState(() {
       _isProcessing = true;
-      _statusMessage = 'Recognizing receipt with on-device ML Kit...';
+      _statusMessage = 'Recognizing receipt...';
     });
 
     try {
-      File fileToOcr = widget.imageFile;
+      final Uint8List currentBytes = widget.imageBytes ??
+          (widget.imageFile != null ? await widget.imageFile!.readAsBytes() : Uint8List(0));
+      Uint8List finalBytes = currentBytes;
 
-      if (crop) {
+      if (crop && currentBytes.isNotEmpty) {
         setState(() {
           _statusMessage = 'Cropping image...';
         });
 
-        final bytes = await widget.imageFile.readAsBytes();
-        final decoded = img.decodeImage(bytes);
-
+        final decoded = img.decodeImage(currentBytes);
         if (decoded != null) {
           final x = (_cropRectFraction.left * decoded.width).round().clamp(0, decoded.width - 1);
           final y = (_cropRectFraction.top * decoded.height).round().clamp(0, decoded.height - 1);
@@ -58,15 +62,47 @@ class _CropReceiptScreenState extends State<CropReceiptScreen> {
           final h = (_cropRectFraction.height * decoded.height).round().clamp(10, decoded.height - y);
 
           final cropped = img.copyCrop(decoded, x: x, y: y, width: w, height: h);
-          final croppedBytes = img.encodeJpg(cropped, quality: 90);
-
-          final savedPath = await _storageService.saveReceiptBytes(croppedBytes);
-          fileToOcr = File(savedPath);
+          finalBytes = Uint8List.fromList(img.encodeJpg(cropped, quality: 90));
         }
       }
 
+      // Web Demo Mode: Google ML Kit is native-only (Android/iOS).
+      // Web routes cleanly to demo mode using deterministic sample text with the SAME parser.
+      if (kIsWeb) {
+        setState(() {
+          _statusMessage = 'Processing receipt with parser...';
+        });
+
+        const sampleText = ReceiptParser.sampleReceiptText;
+        final parsed = ReceiptParser.parse(sampleText, processingDurationMs: 42);
+
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReviewExpenseScreen(
+              imageBytes: finalBytes,
+              imageFile: null,
+              parsedReceipt: parsed,
+              rawOcrText: sampleText,
+              latencyMs: 42,
+              isWebDemo: true,
+            ),
+          ),
+        );
+        return;
+      }
+
+      // Native Android / iOS execution (unchanged)
+      File fileToOcr = widget.imageFile!;
+      if (crop) {
+        final savedPath = await _storageService.saveReceiptBytes(finalBytes);
+        fileToOcr = File(savedPath);
+      }
+
       setState(() {
-        _statusMessage = 'Running on-device text recognition...';
+        _statusMessage = 'Running on-device ML Kit text recognition...';
       });
 
       final ocrResult = await _ocrService.processReceiptImage(fileToOcr);
@@ -78,9 +114,11 @@ class _CropReceiptScreenState extends State<CropReceiptScreen> {
         MaterialPageRoute(
           builder: (context) => ReviewExpenseScreen(
             imageFile: fileToOcr,
+            imageBytes: finalBytes,
             parsedReceipt: ocrResult.parsedReceipt,
             rawOcrText: ocrResult.rawText,
             latencyMs: ocrResult.latencyMs,
+            isWebDemo: false,
           ),
         ),
       );
@@ -127,10 +165,17 @@ class _CropReceiptScreenState extends State<CropReceiptScreen> {
                 fit: StackFit.expand,
                 children: [
                   Center(
-                    child: Image.file(
-                      widget.imageFile,
-                      fit: BoxFit.contain,
-                    ),
+                    child: widget.imageBytes != null
+                        ? Image.memory(
+                            widget.imageBytes!,
+                            fit: BoxFit.contain,
+                          )
+                        : (!kIsWeb && widget.imageFile != null)
+                            ? Image.file(
+                                widget.imageFile!,
+                                fit: BoxFit.contain,
+                              )
+                            : const SizedBox.shrink(),
                   ),
 
                   // Draggable Crop Box Overlay
