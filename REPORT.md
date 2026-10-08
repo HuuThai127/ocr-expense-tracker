@@ -9,10 +9,10 @@
 ## 1. GENERAL INFORMATION & DELIVERABLE LINKS
 * **Team Members:**
    1. Le Huu Thai — Student ID: 23IT.EB091 — Role: Lead Architecture & On-Device ML/OCR Engine / CustomPainter Visualization, UI & SQLite Storage — Contribution: 100%
-* **🔗 Live Demo / Web App:** https://ocr-expense-tracker-phi.vercel.app  
-  *(Native Android Debug APK: `build/app/outputs/flutter-apk/app-debug.apk`, 192 MB)*
+* **📦 Release APK:** [app-release.apk (v1.0.0)](https://github.com/HuuThai127/ocr-expense-tracker/releases/download/v1.0.0/app-release.apk) *(88.2 MB direct download)*
+* **🎥 Video Demo:** [Google Drive Walkthrough Video](https://drive.google.com/file/d/1kPP8WbzLUPV_41wJLC7jazh56tFQPFaX/view?usp=sharing)
 * **💻 GitHub Repository:** https://github.com/HuuThai127/ocr-expense-tracker
-* **🎥 Video Demo Walkthrough:** [Google Drive Walkthrough Video](https://drive.google.com/file/d/1kPP8WbzLUPV_41wJLC7jazh56tFQPFaX/view?usp=sharing)
+* **🌐 Supplementary Web Demo:** https://ocr-expense-tracker-phi.vercel.app
 
 ---
 
@@ -145,7 +145,7 @@ Aggregations for the charts are performed efficiently in SQL:
 |---|---|---|
 | **Automated Tests** | `flutter test` | **30 / 30 Passed (100%)** |
 | **Static Code Analysis** | `dart analyze` | **0 Issues Found (Clean)** |
-| **Android Build** | `flutter build apk --debug` | **Built `app-debug.apk` (192 MB)** |
+| **Android Release Build** | `flutter build apk --release` | **Built `app-release.apk` (88.2 MB)** |
 | **Web Release** | `flutter build web --release` | **Deployed to Vercel (Production Live)** |
 | **Web Persistence** | IndexedDB SQLite WASM | **Verified (Survives page reloads)** |
 | **OCR Engine** | Google ML Kit on Android | **1,241 ms (native frame) / 2,194 ms (bitmap)** |

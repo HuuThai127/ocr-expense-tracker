@@ -2,7 +2,7 @@
 
 [![Flutter Test](https://img.shields.io/badge/Flutter%20Test-30%2F30%20Passed-emerald.svg)](test)
 [![Dart Analyze](https://img.shields.io/badge/Dart%20Analyze-0%20Issues-brightgreen.svg)](analysis_options.yaml)
-[![Android Build](https://img.shields.io/badge/Android%20APK-Built%20Successfully-blue.svg)](build/app/outputs/flutter-apk/app-debug.apk)
+[![Android Release](https://img.shields.io/badge/Release%20APK-v1.0.0%20(88.2MB)-blue.svg)](https://github.com/HuuThai127/ocr-expense-tracker/releases/download/v1.0.0/app-release.apk)
 [![On-Device AI](https://img.shields.io/badge/ML%20Kit-100%25%20On--Device-indigo.svg)](lib/services/ocr/receipt_ocr_service.dart)
 [![Charts](https://img.shields.io/badge/Charts-CustomPainter%20Only-orange.svg)](lib/painters)
 [![Web Demo](https://img.shields.io/badge/Vercel-Live%20Demo-black.svg)](https://ocr-expense-tracker-phi.vercel.app)
@@ -15,10 +15,10 @@ Receipts are photographed or cropped, recognized 100% locally on-device without 
 
 ## 🌐 Public Deliverables
 
+* **📦 Release APK:** [app-release.apk (v1.0.0)](https://github.com/HuuThai127/ocr-expense-tracker/releases/download/v1.0.0/app-release.apk) *(88.2 MB direct download)*
+* **🎥 Video Demo Walkthrough:** [Google Drive Walkthrough Video](https://drive.google.com/file/d/1kPP8WbzLUPV_41wJLC7jazh56tFQPFaX/view?usp=sharing)
 * **💻 GitHub Repository:** [https://github.com/HuuThai127/ocr-expense-tracker](https://github.com/HuuThai127/ocr-expense-tracker)
-* **🔗 Live Web Demonstration:** [https://ocr-expense-tracker-phi.vercel.app](https://ocr-expense-tracker-phi.vercel.app) *(Flutter Web release with responsive dashboard, history, custom charts, and interactive demo sample receipt flow)*
-* **📦 Android Debug APK:** `build/app/outputs/flutter-apk/app-debug.apk` (192 MB)
-* **🎥 Demonstration Video Walkthrough:** [Google Drive Walkthrough Video](https://drive.google.com/file/d/1kPP8WbzLUPV_41wJLC7jazh56tFQPFaX/view?usp=sharing)
+* **🌐 Supplementary Web Demo:** [https://ocr-expense-tracker-phi.vercel.app](https://ocr-expense-tracker-phi.vercel.app)
 * **📄 Technical Report PDF:** [REPORT.pdf](REPORT.pdf) (3-page technical report)
 * **📄 Technical Report Markdown:** [REPORT.md](REPORT.md)
 
@@ -80,7 +80,7 @@ Every single item in the project rubric has been systematically built and verifi
 ### VERIFICATION & SUBMISSION
 - [x] **flutter test passes**: 30 / 30 unit and widget tests pass with 0 failures.
 - [x] **dart analyze passes without major errors**: 0 linter errors, 0 warnings.
-- [x] **Android debug build succeeds**: Successfully built `build/app/outputs/flutter-apk/app-debug.apk` (192 MB).
+- [x] **Android release build succeeds**: Successfully built and published `app-release.apk` (88.2 MB) to GitHub Releases v1.0.0.
 - [x] **Flutter Web release built & deployed**: Production build served live at `https://ocr-expense-tracker-phi.vercel.app`.
 - [x] **README.md complete**: Comprehensive documentation with architecture, verification results, and usage.
 - [x] **4 real screenshots created**: Saved in `screenshots/` and linked via relative repository paths.
@@ -204,11 +204,11 @@ dart analyze
 ```
 *Result: No issues found!*
 
-### 3. Build Android Debug APK
+### 3. Build Android Release APK
 ```bash
-flutter build apk --debug
+flutter build apk --release
 ```
-*Output: `build/app/outputs/flutter-apk/app-debug.apk`.*
+*Output: `build/app/outputs/flutter-apk/app-release.apk` (88.2 MB).*
 
 ### 4. Build Flutter Web Release
 ```bash
@@ -220,9 +220,9 @@ flutter build web --release
 
 ## 📄 Submission Deliverables & Status
 
+- **Release APK (v1.0.0)**: [https://github.com/HuuThai127/ocr-expense-tracker/releases/download/v1.0.0/app-release.apk](https://github.com/HuuThai127/ocr-expense-tracker/releases/download/v1.0.0/app-release.apk)
+- **Video Demo Walkthrough**: [Google Drive Walkthrough Video](https://drive.google.com/file/d/1kPP8WbzLUPV_41wJLC7jazh56tFQPFaX/view?usp=sharing)
 - **GitHub Repository**: [https://github.com/HuuThai127/ocr-expense-tracker](https://github.com/HuuThai127/ocr-expense-tracker)
-- **Live Web Demo**: [https://ocr-expense-tracker-phi.vercel.app](https://ocr-expense-tracker-phi.vercel.app)
-- **Demo Video Walkthrough (2–3 minutes)**: [Google Drive Walkthrough Video](https://drive.google.com/file/d/1kPP8WbzLUPV_41wJLC7jazh56tFQPFaX/view?usp=sharing)
-- **Technical Report Markdown**: [REPORT.md](REPORT.md)
+- **Supplementary Web Demo**: [https://ocr-expense-tracker-phi.vercel.app](https://ocr-expense-tracker-phi.vercel.app)
 - **Technical Report PDF (3 Pages)**: [REPORT.pdf](REPORT.pdf)
-- **Debug APK Artifact**: `build/app/outputs/flutter-apk/app-debug.apk` (192 MB)
+- **Technical Report Markdown**: [REPORT.md](REPORT.md)
