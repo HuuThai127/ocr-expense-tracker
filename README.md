@@ -5,10 +5,22 @@
 [![Android Build](https://img.shields.io/badge/Android%20APK-Built%20Successfully-blue.svg)](build/app/outputs/flutter-apk/app-debug.apk)
 [![On-Device AI](https://img.shields.io/badge/ML%20Kit-100%25%20On--Device-indigo.svg)](lib/services/ocr/receipt_ocr_service.dart)
 [![Charts](https://img.shields.io/badge/Charts-CustomPainter%20Only-orange.svg)](lib/painters)
+[![Web Demo](https://img.shields.io/badge/Vercel-Live%20Demo-black.svg)](https://ocr-expense-tracker-phi.vercel.app)
 
-An offline-first, privacy-focused intelligent mobile expense tracker built with **Flutter**, **Google ML Kit Text Recognition**, **SQLite (sqflite)**, and pure **CustomPainter** data visualization. 
+An offline-first, privacy-focused intelligent mobile expense tracker built with **Flutter**, **Google ML Kit Text Recognition**, **SQLite (sqflite)**, and pure **CustomPainter** data visualization.
 
-Receipts are photographed or cropped, parsed on-device in under 100ms without any cloud API dependency, reviewed with full manual override, and organized into animated interactive charts.
+Receipts are photographed or cropped, recognized 100% locally on-device without any cloud API dependency, reviewed with full manual override, and organized into animated interactive charts.
+
+---
+
+## 🌐 Public Deliverables
+
+* **💻 GitHub Repository:** [https://github.com/HuuThai127/ocr-expense-tracker](https://github.com/HuuThai127/ocr-expense-tracker)
+* **🔗 Live Web Demonstration:** [https://ocr-expense-tracker-phi.vercel.app](https://ocr-expense-tracker-phi.vercel.app) *(Flutter Web release with responsive dashboard, history, custom charts, and interactive demo sample receipt flow)*
+* **📦 Android Debug APK:** `build/app/outputs/flutter-apk/app-debug.apk` (192 MB)
+* **🎥 Demonstration Video Walkthrough:** *[Pending Upload — Native Android 2–3 minute recording walkthrough prepared]*
+* **📄 Technical Report PDF:** [REPORT.pdf](REPORT.pdf) (3-page technical report)
+* **📄 Technical Report Markdown:** [REPORT.md](REPORT.md)
 
 ---
 
@@ -19,10 +31,10 @@ Receipts are photographed or cropped, parsed on-device in under 100ms without an
 | ![Dashboard](screenshots/01_dashboard.png) | ![Camera Overlay](screenshots/02_camera_overlay.png) |
 | *Real-time total expenditure, AI status, category breakdown, recent receipts* | *Framing guide, yellow tap-to-focus ring, flash toggle & sample picker* |
 
-| 3. Receipt Crop & Perspective Bounding | 4. Review Expense & ML Detection | 5. Animated CustomPainter Analytics |
-| :---: | :---: | :---: |
-| ![Receipt Crop](screenshots/03_crop_receipt.png) | ![Review Screen](screenshots/04_review_screen.png) | ![Analytics Charts](screenshots/05_analytics_charts.png) |
-| *Interactive bounding box crop with Skip & Full Image options* | *OCR confidence badge, measured 78ms latency, editable inputs & categories* | *Animated Donut & Bar charts with interactive slice focus* |
+| 3. Review Expense & Manual Edit | 4. Animated CustomPainter Analytics |
+| :---: | :---: |
+| ![Review Screen](screenshots/04_review_screen.png) | ![Analytics Charts](screenshots/05_analytics_charts.png) |
+| *OCR confidence status, measured inference latency, editable inputs & categories* | *Animated Donut & Bar charts with interactive slice focus* |
 
 ---
 
@@ -53,7 +65,7 @@ Every single item in the project rubric has been systematically built and verifi
 - [x] **Bar chart is animated**: Smooth vertical growth synchronized with the primary animation controller.
 - [x] **Donut chart has real user interaction**: Tapping category chips or donut segments pops out the active slice along its angular bisector, updating the center hole with category icon, percentage, and exact VND amount.
 
-### QUALITY
+### QUALITY & PERFORMANCE
 - [x] **Loading states exist**: Styled loading views during camera initialization, image cropping, OCR processing, and database transactions.
 - [x] **Error states exist**: User-friendly alerts with actionable retry actions for camera failures, image decode errors, and validation errors.
 - [x] **Empty states exist**: Dedicated illustrated empty states on home dashboard, history search, and analytics screen.
@@ -63,22 +75,17 @@ Every single item in the project rubric has been systematically built and verifi
 - [x] **Database logic is verified**: Suite in `test/database/database_test.dart` validating full CRUD operations using in-memory SQLite FFI.
 - [x] **No third-party chart library is used**: 100% custom math and canvas rendering.
 - [x] **No cloud OCR is used**: 100% local on-device machine learning with zero external network requests.
+- [x] **Honest OCR Latency Reporting**: The project implements 100% on-device OCR using Google ML Kit. Measured latency on the verification environment was **1,241 ms** for native high-resolution camera frames and **2,194 ms** for dense sample bitmaps (above the sub-100ms ideal target, but completely offline, local, and private).
 
-### VERIFICATION
+### VERIFICATION & SUBMISSION
 - [x] **flutter test passes**: 29 / 29 unit and widget tests pass with 0 failures.
 - [x] **dart analyze passes without major errors**: 0 linter errors, 0 warnings.
 - [x] **Android debug build succeeds**: Successfully built `build/app/outputs/flutter-apk/app-debug.apk` (192 MB).
-- [x] **App has been manually tested on a real device/emulator**: Tested through built-in sample receipt demo suite and native Android build.
-- [x] **OCR latency is measured if claiming sub-100ms**: `Stopwatch` measures on-device inference duration (typically 70–95ms on modern Android hardware).
-- [x] **Any native/web limitation is documented honestly**: Clearly stated in the Technical Architecture & Platform Notes section below.
-
-### SUBMISSION
+- [x] **Flutter Web release built & deployed**: Production build served live at `https://ocr-expense-tracker-phi.vercel.app`.
 - [x] **README.md complete**: Comprehensive documentation with architecture, verification results, and usage.
-- [x] **4+ real screenshots created**: 5 crisp screenshots saved in `screenshots/`.
-- [x] **Screenshots use relative repository paths**: Linked directly via `screenshots/*.png`.
-- [x] **2–4 page report PDF complete using lecturer template**: Saved as `REPORT.md` and compiled to `REPORT.pdf`.
-- [x] **Public GitHub repository ready**: Ready for publishing to GitHub.
-- [x] **Demo URL OR 2–3 minute video ready**: Demonstration video walkthrough guide and demo sample mode included.
+- [x] **4 real screenshots created**: Saved in `screenshots/` and linked via relative repository paths.
+- [x] **3-page report PDF complete**: Compiled to `REPORT.pdf` from `report.html` using the official structure.
+- [x] **Public GitHub repository ready**: Pushed and tracking `origin/master`.
 - [x] **No secrets or machine-specific files committed**: Clean `.gitignore` excluding build folders, cache, and machine files.
 
 ---
@@ -110,14 +117,14 @@ lib/
 ├── features/
 │   ├── analytics/
 │   │   └── analytics_screen.dart  # Donut & Weekly bar charts with interactive state
-│   ├── camera/
+├── camera/
 │   │   ├── camera_capture_screen.dart # Viewfinder, tap-to-focus, overlay, flash
 │   │   └── crop_receipt_screen.dart   # Bounding crop & image manipulation
-│   ├── expenses/
+├── expenses/
 │   │   ├── expense_controller.dart    # State management (Provider)
 │   │   ├── expense_detail_screen.dart # Detailed expense inspection & deletion
 │   │   └── expense_history_screen.dart# Search & category filtered list
-│   ├── home/
+├── home/
 │   │   └── home_screen.dart       # Main spending dashboard & quick actions
 │   └── review/
 │       └── review_expense_screen.dart # Form review, category chips, raw OCR sheet
@@ -163,15 +170,15 @@ lib/
    - Matches dot and comma thousand separators (`150.000`, `150,000`, `1.250.000`).
    - Rejects phone numbers (e.g. `090...`, `028...`) and tax codes (`MST: ...`).
    - Scans reverse line order to prioritize grand total keywords (`TONG CONG`, `THANH TIEN`, `TOTAL AMOUNT`).
-4. **Calendar Date Parser**: Extracts `DD/MM/YYYY`, `DD-MM-YYYY`, and `DD.MM.YYYY`, rejecting non-existent calendar dates (e.g., `32/15/2025` or `29/02/2025` on non-leap years).
+4. **Calendar Date Parser**: Extracts `DD/MM/YYYY`, `DD-MM-YYYY`, and `DD.MM.YYYY`, rejecting non-existent calendar dates.
 
 ---
 
-## ⚠️ Honest Platform & Hardware Limitations
+## ⚠️ Honest Platform & Hardware Notes
 
 1. **Google ML Kit Vision Engine**:
    - **Supported Platforms**: Native Android (API 21+) and native iOS. Runs 100% on-device using bundled/unbundled ML Kit models.
-   - **Desktop / Web Environments**: Google ML Kit native binary does not provide a desktop/web runtime. To guarantee complete evaluator grading on any machine, the application includes a **Built-in Sample Receipt Suite** accessible directly from the camera viewfinder (`Receipt` icon button).
+   - **Web / Demo Environments**: Google ML Kit native binary does not provide a browser runtime. The deployed Flutter Web version provides an interactive **Sample Receipt Flow** allowing evaluators to test receipt parsing heuristics, review screens, and chart interactions without requiring a physical camera.
 2. **Camera Hardware Controls**:
    - Hardware flash torch and physical auto-focus rely on physical rear cameras. On simulators or devices lacking flash hardware, exceptions are trapped gracefully and the UI notifies the user without crashing.
 
@@ -197,21 +204,19 @@ flutter build apk --debug
 ```
 *Output: `build/app/outputs/flutter-apk/app-debug.apk`.*
 
+### 4. Build Flutter Web Release
+```bash
+flutter build web --release
+```
+*Output: `build/web` (Deployed to Vercel).*
+
 ---
 
 ## 📄 Submission Deliverables & Status
 
-- **GitHub Repository**: *Not configured yet* (Local branch `master` is clean and fully verified; no remote origin is set in `git remote -v`).
-- **Demo Video Walkthrough (2–3 minutes)**: *Flow prepared and verified on device/emulator* (Awaiting user recording upload URL):
-  1. **Home Dashboard**: Total expenditure banner, On-Device AI badge, category summaries, and recent expense cards.
-  2. **Camera Scan**: Real-time viewfinder preview, receipt framing mask, flash toggle (`torch`/`auto`/`off`), and tap-to-focus indicator.
-  3. **Crop & Framing**: Interactive bounding box adjustment and perspective cropping.
-  4. **On-Device ML Kit OCR**: Local text recognition profiling (`google_mlkit_text_recognition`) with measured latency.
-  5. **Review & Manual Edit**: Automated field extraction (merchant, amount, date) with full user editing and category pills.
-  6. **Save to SQLite**: Local relational database persistence (`sqflite`) and persistent cropped receipt image storage.
-  7. **Persistence on Restart**: Relaunch verification confirming records and calculations survive application termination.
-  8. **CustomPainter Analytics**: Pure canvas Donut and Weekly Bar charts with touch interaction and radial slice pop-out.
+- **GitHub Repository**: [https://github.com/HuuThai127/ocr-expense-tracker](https://github.com/HuuThai127/ocr-expense-tracker)
+- **Live Web Demo**: [https://ocr-expense-tracker-phi.vercel.app](https://ocr-expense-tracker-phi.vercel.app)
+- **Demo Video Walkthrough (2–3 minutes)**: *Flow prepared and verified on device/emulator (awaiting recording upload URL)*
 - **Technical Report Markdown**: [REPORT.md](REPORT.md)
 - **Technical Report PDF (3 Pages)**: [REPORT.pdf](REPORT.pdf)
 - **Debug APK Artifact**: `build/app/outputs/flutter-apk/app-debug.apk` (192 MB)
-

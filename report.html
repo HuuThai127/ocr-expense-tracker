@@ -2,66 +2,67 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Mini-Project 3 Technical Report</title>
+<title>Mini-Project 3 Technical Report - Le Huu Thai</title>
 <style>
   @page {
     size: A4;
-    margin: 14mm 14mm 14mm 14mm;
+    margin: 12mm 14mm 12mm 14mm;
   }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: #1e293b;
-    line-height: 1.45;
-    font-size: 11pt;
+    line-height: 1.4;
+    font-size: 10pt;
     margin: 0;
     padding: 0;
   }
   h1 {
     color: #312e81;
-    font-size: 18pt;
+    font-size: 16pt;
+    margin-top: 0;
     margin-bottom: 2px;
     border-bottom: 2px solid #4f46e5;
-    padding-bottom: 6px;
+    padding-bottom: 4px;
   }
   .header-meta {
-    font-size: 9.5pt;
+    font-size: 9pt;
     color: #475569;
-    margin-bottom: 14px;
-    line-height: 1.4;
+    margin-bottom: 10px;
+    line-height: 1.35;
   }
   h2 {
     color: #3730a3;
-    font-size: 13pt;
-    margin-top: 14px;
-    margin-bottom: 6px;
+    font-size: 12pt;
+    margin-top: 12px;
+    margin-bottom: 5px;
     border-left: 4px solid #4f46e5;
     padding-left: 8px;
     page-break-after: avoid;
   }
   h3 {
     color: #1e1b4b;
-    font-size: 11pt;
-    margin-top: 10px;
-    margin-bottom: 4px;
+    font-size: 10.5pt;
+    margin-top: 8px;
+    margin-bottom: 3px;
     page-break-after: avoid;
   }
   p, li {
-    font-size: 10pt;
+    font-size: 9.5pt;
     color: #334155;
-    margin-top: 3px;
-    margin-bottom: 4px;
+    margin-top: 2px;
+    margin-bottom: 3px;
   }
   ul {
-    margin-top: 4px;
-    margin-bottom: 6px;
-    padding-left: 20px;
+    margin-top: 3px;
+    margin-bottom: 5px;
+    padding-left: 18px;
   }
   table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 6px;
-    margin-bottom: 12px;
-    font-size: 9pt;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    font-size: 8.5pt;
     page-break-inside: avoid;
   }
   th {
@@ -69,11 +70,11 @@
     color: #ffffff;
     font-weight: 600;
     text-align: left;
-    padding: 6px 8px;
+    padding: 5px 7px;
     border: 1px solid #4338ca;
   }
   td {
-    padding: 5px 8px;
+    padding: 4px 7px;
     border: 1px solid #cbd5e1;
     vertical-align: top;
   }
@@ -84,35 +85,37 @@
     background-color: #dcfce7;
     color: #15803d;
     font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 4px;
+    padding: 1px 5px;
+    border-radius: 3px;
     display: inline-block;
   }
   .screenshot-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    margin-top: 8px;
-    margin-bottom: 12px;
+    margin-top: 6px;
+    margin-bottom: 10px;
     page-break-inside: avoid;
   }
   .screenshot-card {
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border-radius: 6px;
     overflow: hidden;
     text-align: center;
     background-color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
   }
   .screenshot-card img {
     width: 100%;
-    height: auto;
+    max-height: 190px;
+    object-fit: contain;
+    background-color: #0f172a;
     display: block;
   }
   .screenshot-caption {
     font-size: 7.5pt;
     color: #64748b;
-    padding: 4px 6px;
+    padding: 3px 5px;
     background-color: #f8fafc;
     border-top: 1px solid #f1f5f9;
     font-weight: 500;
@@ -120,20 +123,20 @@
   pre {
     background-color: #f1f5f9;
     border: 1px solid #e2e8f0;
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 8.5pt;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 8pt;
     font-family: Consolas, monospace;
     overflow-x: auto;
     page-break-inside: avoid;
-    margin: 4px 0;
+    margin: 3px 0;
   }
   code {
     font-family: Consolas, monospace;
     background-color: #f1f5f9;
-    padding: 1px 4px;
+    padding: 1px 3px;
     border-radius: 3px;
-    font-size: 8.5pt;
+    font-size: 8pt;
   }
   .page-break {
     page-break-before: always;
@@ -146,23 +149,23 @@
 <div class="header-meta">
   <strong>Course:</strong> Cross-Platform Mobile App Development (VKU)<br>
   <strong>Mini-Project Title:</strong> Mini-Project 3: On-Device OCR Receipt Expense Tracker with Custom Data Visualizations<br>
-  <strong>Team / Student Name:</strong> Mobile Engineering Team (Nguyen Van A & Tran Thi B)<br>
+  <strong>Team / Student Name:</strong> Le Huu Thai (Mobile Engineering Lab)<br>
   <strong>Submission Date:</strong> 08/10/2026
 </div>
 
-<hr style="border: none; border-top: 1px solid #e2e8f0; margin-bottom: 10px;">
+<hr style="border: none; border-top: 1px solid #e2e8f0; margin-bottom: 8px;">
 
 <h2>1. GENERAL INFORMATION & DELIVERABLE LINKS</h2>
 <ul>
   <li><strong>Team Members:</strong>
     <ul>
-      <li>Nguyen Van A — Student ID: 22IT001 — Role: Lead Architecture & On-Device ML/OCR Engine — Contribution: 50%</li>
-      <li>Tran Thi B — Student ID: 22IT002 — Role: CustomPainter Visualization, UI & SQLite Storage — Contribution: 50%</li>
+      <li>Le Huu Thai — Student ID: 23IT.EB091 — Role: Lead Architecture & On-Device ML/OCR Engine / CustomPainter Visualization, UI & SQLite Storage — Contribution: 100%</li>
     </ul>
   </li>
-  <li><strong>🔗 Live Demo / APK Download:</strong> <code>build/app/outputs/flutter-apk/app-debug.apk</code> (Android Debug Build, 192 MB)</li>
-  <li><strong>💻 GitHub Repository:</strong> <em>Not configured</em> (Local branch <code>master</code>, no remote origin configured in <code>git remote -v</code>)</li>
-  <li><strong>🎥 Video Demo / Walkthrough:</strong> <em>Flow prepared</em> (Home → Camera Scan → ML Kit OCR → Review/Edit → Save → Persistence Restart → Interactive Analytics)</li>
+  <li><strong>🔗 Live Demo / Web App:</strong> <a href="https://ocr-expense-tracker-phi.vercel.app">https://ocr-expense-tracker-phi.vercel.app</a><br>
+      <em>(Native Android Debug APK: <code>build/app/outputs/flutter-apk/app-debug.apk</code>, 192 MB)</em></li>
+  <li><strong>💻 GitHub Repository:</strong> <a href="https://github.com/HuuThai127/ocr-expense-tracker">https://github.com/HuuThai127/ocr-expense-tracker</a></li>
+  <li><strong>🎥 Video Demo Walkthrough:</strong> <em>[Pending Upload — Video recording script prepared for native Android device walkthrough]</em></li>
 </ul>
 
 <h2>2. FEATURE IMPLEMENTATION CHECKLIST</h2>
@@ -180,7 +183,7 @@
       <td style="text-align: center;">1</td>
       <td><strong>Camera & Framing Overlay</strong></td>
       <td style="text-align: center;"><span class="badge-complete">✅ Complete</span></td>
-      <td>Hardware camera preview with <code>ResolutionPreset.high</code>, custom <code>_FramingPainter</code> mask, animated yellow tap-to-focus ring, and flash toggle (torch/auto/off).</td>
+      <td>Hardware camera preview (<code>camera: ^0.12.0+2</code>) with <code>ResolutionPreset.high</code>, custom <code>_FramingPainter</code> mask, animated yellow tap-to-focus ring, and flash toggle (torch/auto/off).</td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
@@ -192,7 +195,7 @@
       <td style="text-align: center;">3</td>
       <td><strong>Google ML Kit On-Device OCR</strong></td>
       <td style="text-align: center;"><span class="badge-complete">✅ Complete</span></td>
-      <td>100% on-device neural text recognition via <code>google_mlkit_text_recognition: ^0.16.0</code>. Zero cloud APIs. Stopwatch latency tracking (70–95ms on-device).</td>
+      <td>100% on-device neural text recognition via <code>google_mlkit_text_recognition: ^0.16.0</code>. Zero cloud APIs. Stopwatch latency tracking measured at 1,241 ms for native camera frame and 2,194 ms for sample bitmap in test environment (exceeding sub-100ms ideal target).</td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
@@ -204,7 +207,7 @@
       <td style="text-align: center;">5</td>
       <td><strong>Review & Edit Screen</strong></td>
       <td style="text-align: center;"><span class="badge-complete">✅ Complete</span></td>
-      <td>Review screen allowing manual editing of merchant, amount, calendar date picker, category selector chips, and bottom sheet raw OCR text inspector.</td>
+      <td>Review screen allowing manual editing of merchant, amount, calendar date picker, category selector chips, and bottom sheet raw OCR text inspector with measured inference latency.</td>
     </tr>
     <tr>
       <td style="text-align: center;">6</td>
@@ -226,9 +229,9 @@
     </tr>
     <tr>
       <td style="text-align: center;">9</td>
-      <td><strong>Quality & Verification</strong></td>
+      <td><strong>Web Compatibility & Demo</strong></td>
       <td style="text-align: center;"><span class="badge-complete">✅ Complete</span></td>
-      <td>29 passing tests (<code>flutter test</code>), 0 analyze issues (<code>dart analyze</code>), no third-party charting libraries, and successful Android debug APK build.</td>
+      <td>Production Flutter Web release deployed to Vercel with SPA routing rewrite (<code>vercel.json</code>), responsive layout, and built-in sample receipt demo flow.</td>
     </tr>
   </tbody>
 </table>
@@ -274,26 +277,19 @@ CREATE INDEX idx_expenses_date ON expenses (transaction_date DESC);
 <div class="screenshot-grid">
   <div class="screenshot-card">
     <img src="screenshots/01_dashboard.png" alt="Dashboard">
-    <div class="screenshot-caption">Fig 4.1: Dashboard & Spending Banner</div>
+    <div class="screenshot-caption">Fig 4.1: Dashboard & Spending Overview</div>
   </div>
   <div class="screenshot-card">
     <img src="screenshots/02_camera_overlay.png" alt="Camera Framing">
     <div class="screenshot-caption">Fig 4.2: Camera Overlay & Focus Ring</div>
   </div>
   <div class="screenshot-card">
-    <img src="screenshots/03_crop_receipt.png" alt="Receipt Crop">
-    <div class="screenshot-caption">Fig 4.3: Crop Viewport & Handles</div>
-  </div>
-</div>
-
-<div class="screenshot-grid" style="grid-template-columns: repeat(2, 1fr); max-width: 70%; margin: 8px auto;">
-  <div class="screenshot-card">
     <img src="screenshots/04_review_screen.png" alt="Review Expense">
-    <div class="screenshot-caption">Fig 4.4: Review Form & ML Status</div>
+    <div class="screenshot-caption">Fig 4.3: Review Form & Measured OCR Latency</div>
   </div>
   <div class="screenshot-card">
     <img src="screenshots/05_analytics_charts.png" alt="Analytics Charts">
-    <div class="screenshot-caption">Fig 4.5: CustomPainter Donut & Bar Charts</div>
+    <div class="screenshot-caption">Fig 4.4: CustomPainter Donut & Bar Charts</div>
   </div>
 </div>
 
@@ -319,19 +315,19 @@ CREATE INDEX idx_expenses_date ON expenses (transaction_date DESC);
   </li>
 </ul>
 
-<h3>Challenge 3: Multi-Platform Test Portability & Evaluation Readiness</h3>
+<h3>Challenge 3: On-Device OCR Latency & Hardware Variance</h3>
 <ul>
-  <li><strong>The Problem:</strong> Google ML Kit Text Recognition is a native Android/iOS mobile library that lacks native binary runtime on desktop CI environments, and physical camera sensors are unavailable on emulators or desktop test machines.</li>
+  <li><strong>The Problem:</strong> Running neural text recognition 100% on-device requires balancing inference accuracy against mobile CPU/NPU performance. In the verification environment, the measured latency was <strong>1,241 ms</strong> for native high-resolution camera frames and <strong>2,194 ms</strong> for dense sample receipt bitmaps, which is above the aggressive sub-100ms ideal target.</li>
   <li><strong>The Solution:</strong>
     <ul>
-      <li>Decoupled widget tests using a <code>FakeExpenseDao</code> to eliminate native SQLite thread locks during headless testing.</li>
-      <li>Verified database CRUD logic with in-memory SQLite instances in <code>test/database/database_test.dart</code>.</li>
-      <li>Added a built-in <strong>Sample Receipt Suite</strong> directly in <code>CameraCaptureScreen</code>, enabling grading evaluators to test camera, crop, and OCR parsing pipelines seamlessly on any machine.</li>
+      <li>The project implements true on-device OCR via <code>google_mlkit_text_recognition: ^0.16.0</code> without any cloud server offloading.</li>
+      <li>A dedicated <code>Stopwatch</code> profiles inference duration transparently, displaying the exact execution time in the review screen and bottom sheet.</li>
+      <li>To ensure platform-agnostic evaluation, the app provides a built-in Sample Receipt Suite and a deployed Flutter Web release where evaluators can review receipt parsing heuristics without hardware camera locks.</li>
     </ul>
   </li>
 </ul>
 
-<h2>6. VERIFICATION SUMMARY & CONCLUSION</h2>
+<h3>Verification Summary</h3>
 <table>
   <thead>
     <tr>
@@ -357,9 +353,14 @@ CREATE INDEX idx_expenses_date ON expenses (transaction_date DESC);
       <td><strong>Successfully built <code>app-debug.apk</code> (192 MB)</strong></td>
     </tr>
     <tr>
+      <td><strong>Web Production Release</strong></td>
+      <td><code>flutter build web --release</code></td>
+      <td><strong>Deployed to Vercel (Production Live)</strong></td>
+    </tr>
+    <tr>
       <td><strong>On-Device ML OCR Latency</strong></td>
       <td>Stopwatch benchmark on Android</td>
-      <td><strong>70–95 ms Local Inference Time</strong></td>
+      <td><strong>1,241 ms (native frame) / 2,194 ms (bitmap)</strong></td>
     </tr>
     <tr>
       <td><strong>Chart Engine Compliance</strong></td>
@@ -369,7 +370,7 @@ CREATE INDEX idx_expenses_date ON expenses (transaction_date DESC);
   </tbody>
 </table>
 
-<p style="margin-top: 10px; font-weight: 500; color: #1e1b4b;">
+<p style="margin-top: 8px; font-weight: 500; color: #1e1b4b;">
 Mini-Project 3 has been completed in full compliance with the Definition of Done. All core workflows, quality checks, native builds, and documentation artifacts are fully verified and ready for evaluation.
 </p>
 
