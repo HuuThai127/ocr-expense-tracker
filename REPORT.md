@@ -1,6 +1,6 @@
 # MINI-PROJECT SHORT TECHNICAL REPORT
 **Course:** Cross-Platform Mobile App Development (VKU)  
-**Mini-Project Title:** Mini-Project 3: On-Device OCR Receipt Expense Tracker with Custom Data Visualizations  
+**Mini-Project Title:** Mini-Project 3: OCR Expense Tracker & Receipt Parser  
 **Team / Student Name:** Le Huu Thai (Mobile Engineering Lab)  
 **Submission Date:** 08/10/2026  
 
@@ -12,7 +12,7 @@
 * **🔗 Live Demo / Web App:** https://ocr-expense-tracker-phi.vercel.app  
   *(Native Android Debug APK: `build/app/outputs/flutter-apk/app-debug.apk`, 192 MB)*
 * **💻 GitHub Repository:** https://github.com/HuuThai127/ocr-expense-tracker
-* **🎥 Video Demo Walkthrough:** *[https://drive.google.com/file/d/1kPP8WbzLUPV_41wJLC7jazh56tFQPFaX/view?usp=sharing]*
+* **🎥 Video Demo Walkthrough:** [Google Drive Walkthrough Video](https://drive.google.com/file/d/1kPP8WbzLUPV_41wJLC7jazh56tFQPFaX/view?usp=sharing)
 
 ---
 
@@ -20,25 +20,25 @@
 
 | # | Required Feature | Status | Implementation Details & Acceptance Level |
 |:---:|---|:---:|---|
-| **1** | **Camera Preview & Framing Overlay** | ✅ Complete | Hardware camera initialization using `camera: ^0.12.0+2`, custom viewfinder mask via `_FramingPainter`, animated yellow tap-to-focus indicator ring (`setFocusPoint`), and flash toggle (`FlashMode.torch / auto / off`). |
+| **1** | **Camera Preview & Framing Overlay** | ✅ Complete | Native Android/iOS uses the Flutter camera plugin using native camera APIs with hardware flash modes (torch/auto/off) and interactive tap-to-focus via `setFocusPoint()`. Web uses an inline browser camera preview with the same receipt framing overlay; tap-to-focus and hardware torch are gracefully disabled due to browser API limitations. |
 | **2** | **Receipt Capture & Cropping** | ✅ Complete | Captures high-res photos via `takePicture()`. Interactive crop viewport (`CropReceiptScreen`) with draggable corner anchors using `image: ^4.10.1` (`copyCrop`, `encodeJpg`). |
 | **3** | **On-Device ML Kit OCR Integration** | ✅ Complete | Native on-device text recognition using `google_mlkit_text_recognition: ^0.16.0`. 100% offline, zero cloud calls. Latency profiling measures on-device inference duration (measured at 1,241 ms for native camera frame and 2,194 ms for sample bitmap in test environment, exceeding the sub-100ms ideal target). |
 | **4** | **ReceiptParser Regex Heuristics** | ✅ Complete | Multi-pass regex heuristics extracting: (1) Merchant Name from header lines filtering tax/address noise; (2) Total Amount supporting Vietnamese thousand/decimal notations (`150.000`, `150,000 VND`); (3) Transaction Date (`DD/MM/YYYY`) with calendar validation. |
 | **5** | **Review & Editing Screen** | ✅ Complete | Fully editable form allowing manual review of merchant name, amount, date picker, category assignment chips (`Food`, `Study`, `Travel`, `Gear`, `Entertainment`), and bottom sheet displaying raw OCR text and measured inference latency. |
-| **6** | **SQLite Storage & Persistence** | ✅ Complete | SQLite persistence via `sqflite: ^2.4.2+1` and `AppDatabase`. Schema includes indexed `transaction_date`, full CRUD operations, and persistent receipt image storage surviving app restarts. |
+| **6** | **SQLite Storage & Persistence** | ✅ Complete | Native Android/iOS persists expenses locally via `sqflite: ^2.4.2+1` and native SQLite. Web persists expenses via `sqflite_common_ffi_web: ^1.1.1` using SQLite WebAssembly (`sqlite3.wasm`) and IndexedDB persistence. Same table schema, indexes, and full CRUD operations surviving restarts/reloads. |
 | **7** | **Expense History & Search Filters** | ✅ Complete | Reactive list of saved expenses with instant text search by merchant name and horizontal category filter pills. |
 | **8** | **Animated CustomPainter Donut Chart** | ✅ Complete | Pure Flutter canvas rendering via `CategoryDonutPainter` using `drawArc()`. Zero third-party chart libraries. Animated with `CurvedAnimation(Curves.easeOutCubic)`. |
 | **9** | **Animated CustomPainter Bar Chart** | ✅ Complete | 7-day spending distribution via `WeeklyBarPainter` with dynamic height normalization, subtle background tracks, and day labels. |
 | **10** | **Donut Chart Real Interaction** | ✅ Complete | Touch-interactive: tapping category chips or segments pops the active slice outward along its angular bisector, dynamically rendering the active category icon, percentage, and exact amount in the center hole. |
 | **11** | **Quality & State Management** | ✅ Complete | Provider-based MVVM state architecture (`ExpenseController`). Robust loading, empty, and error states with clear retry flows. |
-| **12** | **Web Compatibility & Demo Fallback** | ✅ Complete | Production Flutter Web release deployed to Vercel with SPA routing rewrite (`vercel.json`), responsive layout, and built-in sample receipt demo flow. |
+| **12** | **Web Compatibility & Demo Fallback** | ✅ Complete | Production Flutter Web release deployed to Vercel with SPA routing rewrite (`vercel.json`), responsive layout, inline browser camera preview, and built-in sample receipt demo flow. |
 
 ---
 
 ## 3. TECHNICAL ARCHITECTURE & PROJECT STRUCTURE
 
-### 3.1 Architectural Overview (MVVM + Repository Pattern)
-The application strictly follows clean architectural principles with clear separation of concerns across layers:
+### 3.1 Architectural Overview (MVVM-style Layered Architecture)
+The application uses a modular layered architecture with clear separation between presentation, domain/services, and SQLite data persistence. State management is driven by Provider through ExpenseController:
 1. **Presentation Layer (`lib/features/`, `lib/painters/`)**: Screen widgets, interactive CustomPainters, and Provider state listeners.
 2. **Domain & Business Logic Layer (`lib/services/`)**: `ReceiptParser` regex heuristics, `ReceiptOcrService` native bridge, and `ExpenseValidator` rule enforcement.
 3. **Data Layer (`lib/data/`)**: `AppDatabase` SQLite manager, `ExpenseDao` SQL aggregation queries, and entity models.
@@ -85,7 +85,7 @@ Aggregations for the charts are performed efficiently in SQL:
 - **Weekly breakdown**: `SELECT * FROM expenses WHERE transaction_date >= :startOfWeek AND transaction_date < :endOfWeek;`
 
 ### 3.3 Camera Pipeline & Hardware Adaptation (Native vs. Web)
-* **Native (Android / iOS)**: Direct hardware camera capture via CameraX / AVFoundation, autofocus & interactive tap-to-focus with animated yellow focus ring (`setFocusPoint`), hardware flash mode control (`FlashMode.torch / auto / off`).
+* **Native (Android / iOS)**: The Flutter camera plugin uses native Android/iOS camera APIs for photo capture, autofocus, interactive tap-to-focus with an animated yellow focus ring (`setFocusPoint`), and hardware flash control (`FlashMode.torch / auto / off`).
 * **Web (iPhone Safari / Chrome)**: Live HTML5 `getUserMedia` camera preview rendered inline inside the Flutter viewfinder container using WebKit-specific video configuration (`playsinline`, `webkit-playsinline`, blocked AVPlayer native fullscreen, auto-resume lifecycle). Hardware torch and tap-to-focus are gracefully disabled on Web due to browser Web API constraints, with clear user feedback.
 
 ### 3.4 CustomPainter Mathematical Formulations
@@ -102,9 +102,9 @@ Aggregations for the charts are performed efficiently in SQL:
 ![Dashboard](screenshots/01_dashboard.png)  
 *Figure 4.1: Dashboard displaying Total Monthly Spending in Vietnamese Dong, On-Device AI / Local Storage status badge, category summary chips with distinct theme colors, recent receipts, and quick scan triggers.*
 
-### Screen 2: Real Camera Framing Overlay & Tap-to-Focus
+### Screen 2: Native Camera Framing Overlay & Tap-to-Focus
 ![Camera Overlay](screenshots/02_camera_overlay.png)  
-*Figure 4.2: Camera viewfinder featuring custom Framing Viewfinder Overlay with indigo corner brackets, active yellow tap-to-focus ring, flash toggle, and sample receipt demo selector.*
+*Figure 4.2: Native camera viewfinder with custom receipt framing overlay, interactive tap-to-focus ring, flash control, and capture UI.*
 
 ### Screen 3: Review Expense & Detection Status
 ![Review Screen](screenshots/04_review_screen.png)  
@@ -138,7 +138,7 @@ Aggregations for the charts are performed efficiently in SQL:
 * **The Resolution**:
   1. The project implements true on-device OCR via `google_mlkit_text_recognition: ^0.16.0` without any cloud server offloading.
   2. A dedicated `Stopwatch` profiles inference duration transparently, displaying the exact execution time in the review screen and bottom sheet.
-  3. To ensure platform-agnostic evaluation, the app provides a built-in Sample Receipt Suite and a deployed Flutter Web release where evaluators can review receipt parsing heuristics without hardware camera locks.
+  3. To ensure platform-agnostic evaluation, the app provides both an inline browser camera flow and a built-in Sample Receipt Suite on the deployed Flutter Web release, allowing evaluators to verify the complete camera-to-dashboard workflow while ML Kit remains native Android/iOS only.
 
 ### Verification Summary
 | Verification Step | Command / Tool | Result |
@@ -147,5 +147,6 @@ Aggregations for the charts are performed efficiently in SQL:
 | **Static Code Analysis** | `dart analyze` | **0 Issues Found (Clean)** |
 | **Android Build** | `flutter build apk --debug` | **Built `app-debug.apk` (192 MB)** |
 | **Web Release** | `flutter build web --release` | **Deployed to Vercel (Production Live)** |
+| **Web Persistence** | IndexedDB SQLite WASM | **Verified (Survives page reloads)** |
 | **OCR Engine** | Google ML Kit on Android | **1,241 ms (native frame) / 2,194 ms (bitmap)** |
 | **Data Visualization** | `CategoryDonutPainter` & `WeeklyBarPainter` | **Zero External Chart Libraries** |

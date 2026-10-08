@@ -1,4 +1,4 @@
-# OCR Expense Tracker (Mini-Project 3)
+# Mini-Project 3: OCR Expense Tracker & Receipt Parser
 
 [![Flutter Test](https://img.shields.io/badge/Flutter%20Test-30%2F30%20Passed-emerald.svg)](test)
 [![Dart Analyze](https://img.shields.io/badge/Dart%20Analyze-0%20Issues-brightgreen.svg)](analysis_options.yaml)
@@ -34,7 +34,7 @@ Receipts are photographed or cropped, recognized 100% locally on-device without 
 | 3. Review Expense & Manual Edit | 4. Animated CustomPainter Analytics |
 | :---: | :---: |
 | ![Review Screen](screenshots/04_review_screen.png) | ![Analytics Charts](screenshots/05_analytics_charts.png) |
-| *OCR confidence status, measured inference latency, editable inputs & categories* | *Animated Donut & Bar charts with interactive slice focus* |
+| *'Detected' status badge, measured inference latency, editable inputs & categories* | *Animated Donut & Bar charts with interactive slice focus* |
 
 ---
 
@@ -90,9 +90,9 @@ Every single item in the project rubric has been systematically built and verifi
 
 ---
 
-## 🏗️ Architecture & Project Structure
+## 🏗️ Technical Architecture & Project Structure
 
-The project adopts a modular, clean architectural pattern:
+The project adopts an **MVVM-style Layered Architecture** with clean separation between presentation, domain rules, and data persistence:
 
 ```
 lib/
@@ -181,7 +181,7 @@ lib/
    - **Web / Demo Environments**: Google ML Kit native binary does not provide a browser runtime. The deployed Flutter Web version provides an interactive **Sample Receipt Flow** allowing evaluators to test receipt parsing heuristics, review screens, and chart interactions without requiring a physical camera.
 
 2. **Camera Hardware Controls (Native vs. Web)**:
-   - **Native Android / iOS**: Direct hardware camera pipeline via CameraX / AVFoundation, autofocus & tap-to-focus with animated yellow focus ring (`setFocusPoint`), hardware flash mode control (`FlashMode.torch / auto / off`).
+   - **Native Android / iOS**: Flutter camera plugin using native Android/iOS camera APIs, autofocus & tap-to-focus with animated yellow focus ring (`setFocusPoint`), hardware flash mode control (`FlashMode.torch / auto / off`).
    - **Web (iPhone Safari / Chrome)**: Live HTML5 `getUserMedia` camera preview rendered inline inside the Flutter viewfinder container using WebKit-specific video configuration (`playsinline`, `webkit-playsinline`, blocked AVPlayer native fullscreen, auto-resume lifecycle). Hardware torch and tap-to-focus are gracefully disabled on Web due to browser Web API constraints, with clear user feedback.
 
 3. **Dual SQLite Storage Architecture (Native vs. Web)**:

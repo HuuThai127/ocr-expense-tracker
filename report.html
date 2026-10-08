@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Mini-Project 3 Technical Report - Le Huu Thai</title>
+<title>Mini-Project 3: OCR Expense Tracker & Receipt Parser - Le Huu Thai</title>
 <style>
   @page {
     size: A4;
@@ -93,8 +93,8 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    margin-top: 6px;
-    margin-bottom: 10px;
+    margin-top: 4px;
+    margin-bottom: 6px;
     page-break-inside: avoid;
   }
   .screenshot-card {
@@ -107,7 +107,7 @@
   }
   .screenshot-card img {
     width: 100%;
-    max-height: 190px;
+    max-height: 145px;
     object-fit: contain;
     background-color: #0f172a;
     display: block;
@@ -115,7 +115,7 @@
   .screenshot-caption {
     font-size: 7.5pt;
     color: #64748b;
-    padding: 3px 5px;
+    padding: 2px 4px;
     background-color: #f8fafc;
     border-top: 1px solid #f1f5f9;
     font-weight: 500;
@@ -148,7 +148,7 @@
 <h1>MINI-PROJECT SHORT TECHNICAL REPORT</h1>
 <div class="header-meta">
   <strong>Course:</strong> Cross-Platform Mobile App Development (VKU)<br>
-  <strong>Mini-Project Title:</strong> Mini-Project 3: On-Device OCR Receipt Expense Tracker with Custom Data Visualizations<br>
+  <strong>Mini-Project Title:</strong> Mini-Project 3: OCR Expense Tracker & Receipt Parser<br>
   <strong>Team / Student Name:</strong> Le Huu Thai (Mobile Engineering Lab)<br>
   <strong>Submission Date:</strong> 08/10/2026
 </div>
@@ -181,9 +181,9 @@
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td><strong>Camera & Framing Overlay</strong></td>
+      <td><strong>Camera Preview & Framing Overlay</strong></td>
       <td style="text-align: center;"><span class="badge-complete">✅ Complete</span></td>
-      <td>Hardware camera preview (<code>camera: ^0.12.0+2</code>) with <code>ResolutionPreset.high</code>, custom <code>_FramingPainter</code> mask, animated yellow tap-to-focus ring, and flash toggle (torch/auto/off). Web uses inline HTML5 video with WebKit playsinline enforcement.</td>
+      <td>Native Android/iOS uses the Flutter camera plugin using native camera APIs with hardware flash modes (torch/auto/off) and interactive tap-to-focus via <code>setFocusPoint()</code>. Web uses an inline browser camera preview with the same receipt framing overlay; tap-to-focus and hardware torch are gracefully disabled due to browser API limitations.</td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
@@ -239,26 +239,30 @@
 <div class="page-break"></div>
 
 <h2>3. TECHNICAL ARCHITECTURE & PROJECT STRUCTURE</h2>
-<p>The application adopts a clean, layered architecture separating domain rules, native services, and reactive UI:</p>
-<pre>
+<p style="margin-bottom: 4px;">The application uses an <strong>MVVM-style Layered Architecture</strong> separating presentation, domain services, and SQLite data persistence. State management is driven by Provider via <code>ExpenseController</code>:</p>
+<div style="display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 8px; margin-top: 2px; margin-bottom: 4px;">
+  <div>
+    <h3 style="margin-top: 2px; margin-bottom: 2px;">3.1 Project Structure</h3>
+    <pre style="margin: 0; font-size: 7.2pt; line-height: 1.25;">
 lib/
-├── app/                  # Application root, theme tokens & route registry
-├── core/                 # Utility formatters (VND currency, dates) and strong exceptions
+├── app/                  # Application root & routes
+├── core/                 # Formatters (VND, dates) & errors
 ├── data/
-│   ├── database/         # AppDatabase SQLite singleton & ExpenseDao CRUD queries
-│   └── models/           # ExpenseModel, ExpenseCategory enum, ParsedReceipt
+│   ├── database/         # AppDatabase & ExpenseDao
+│   └── models/           # ExpenseModel, ParsedReceipt
 ├── features/
-│   ├── analytics/        # Spend Analytics screen with interactive CustomPainter charts
-│   ├── camera/           # Camera viewfinder, Framing Painter & CropReceiptScreen
-│   ├── expenses/         # ExpenseController (Provider), history screen & detail screen
-│   ├── home/             # Main dashboard with monthly spend banner & quick scan actions
-│   └── review/           # Manual review form, category chips & raw OCR viewer
-├── painters/             # CategoryDonutPainter & WeeklyBarPainter (pure CustomPainter)
-└── services/             # On-device ML Kit OCR service, ReceiptParser & validation
+│   ├── analytics/        # CustomPainter spend charts
+│   ├── camera/           # Camera, framing mask & crop
+│   ├── expenses/         # ExpenseController (Provider)
+│   ├── home/             # Main spending dashboard
+│   └── review/           # Manual review form & chips
+├── painters/             # Donut & WeeklyBar painters
+└── services/             # On-device ML Kit OCR & parser
 </pre>
-
-<h3>Database Schema & Aggregations</h3>
-<pre>
+  </div>
+  <div>
+    <h3 style="margin-top: 2px; margin-bottom: 2px;">3.2 Dual SQLite Schema</h3>
+    <pre style="margin: 0; font-size: 7.2pt; line-height: 1.25;">
 CREATE TABLE expenses (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   merchant_name TEXT NOT NULL,
@@ -270,9 +274,12 @@ CREATE TABLE expenses (
   created_at TEXT NOT NULL,
   raw_ocr_text TEXT
 );
-CREATE INDEX idx_expenses_date ON expenses (transaction_date DESC);
+CREATE INDEX idx_expenses_date 
+  ON expenses (transaction_date DESC);
 </pre>
-<p style="font-size: 8.5pt; color: #475569; margin-top: 2px;"><strong>Dual SQLite Engine:</strong> Native platforms leverage <code>sqflite</code> via OS SQLite C-libraries in document storage; Web initializes <code>sqflite_common_ffi_web</code> with SQLite WebAssembly (<code>sqlite3.wasm</code>) backed by browser IndexedDB persistence.</p>
+  </div>
+</div>
+<p style="font-size: 8pt; color: #475569; margin: 2px 0 4px 0;"><strong>Dual SQLite Engine:</strong> Native platforms leverage <code>sqflite</code> via OS SQLite C-libraries in document storage; Web initializes <code>sqflite_common_ffi_web</code> with SQLite WebAssembly (<code>sqlite3.wasm</code>) backed by browser IndexedDB persistence.</p>
 
 <h2>4. EMPIRICAL EVIDENCE & SCREENSHOTS</h2>
 <div class="screenshot-grid">
@@ -323,7 +330,7 @@ CREATE INDEX idx_expenses_date ON expenses (transaction_date DESC);
     <ul>
       <li>The project implements true on-device OCR via <code>google_mlkit_text_recognition: ^0.16.0</code> without any cloud server offloading.</li>
       <li>A dedicated <code>Stopwatch</code> profiles inference duration transparently, displaying the exact execution time in the review screen and bottom sheet.</li>
-      <li>To ensure platform-agnostic evaluation, the app provides a built-in Sample Receipt Suite and a deployed Flutter Web release where evaluators can review receipt parsing heuristics without hardware camera locks.</li>
+      <li>To ensure platform-agnostic evaluation, the app provides both an inline browser camera flow and a built-in Sample Receipt Suite on the deployed Flutter Web release, allowing evaluators to verify the complete camera-to-dashboard workflow while ML Kit remains native Android/iOS only.</li>
     </ul>
   </li>
 </ul>
@@ -357,6 +364,11 @@ CREATE INDEX idx_expenses_date ON expenses (transaction_date DESC);
       <td><strong>Web Production Release</strong></td>
       <td><code>flutter build web --release</code></td>
       <td><strong>Deployed to Vercel (Production Live)</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Web Data Persistence</strong></td>
+      <td>IndexedDB SQLite WASM</td>
+      <td><strong>Verified (Survives browser reloads)</strong></td>
     </tr>
     <tr>
       <td><strong>On-Device ML OCR Latency</strong></td>
