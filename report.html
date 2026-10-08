@@ -165,7 +165,7 @@
   <li><strong>🔗 Live Demo / Web App:</strong> <a href="https://ocr-expense-tracker-phi.vercel.app">https://ocr-expense-tracker-phi.vercel.app</a><br>
       <em>(Native Android Debug APK: <code>build/app/outputs/flutter-apk/app-debug.apk</code>, 192 MB)</em></li>
   <li><strong>💻 GitHub Repository:</strong> <a href="https://github.com/HuuThai127/ocr-expense-tracker">https://github.com/HuuThai127/ocr-expense-tracker</a></li>
-  <li><strong>🎥 Video Demo Walkthrough:</strong> <em>[Pending Upload — Video recording script prepared for native Android device walkthrough]</em></li>
+  <li><strong>🎥 Video Demo Walkthrough:</strong> <a href="https://drive.google.com/file/d/1kPP8WbzLUPV_41wJLC7jazh56tFQPFaX/view?usp=sharing">Google Drive Walkthrough Video</a></li>
 </ul>
 
 <h2>2. FEATURE IMPLEMENTATION CHECKLIST</h2>
@@ -183,7 +183,7 @@
       <td style="text-align: center;">1</td>
       <td><strong>Camera & Framing Overlay</strong></td>
       <td style="text-align: center;"><span class="badge-complete">✅ Complete</span></td>
-      <td>Hardware camera preview (<code>camera: ^0.12.0+2</code>) with <code>ResolutionPreset.high</code>, custom <code>_FramingPainter</code> mask, animated yellow tap-to-focus ring, and flash toggle (torch/auto/off).</td>
+      <td>Hardware camera preview (<code>camera: ^0.12.0+2</code>) with <code>ResolutionPreset.high</code>, custom <code>_FramingPainter</code> mask, animated yellow tap-to-focus ring, and flash toggle (torch/auto/off). Web uses inline HTML5 video with WebKit playsinline enforcement.</td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
@@ -211,9 +211,9 @@
     </tr>
     <tr>
       <td style="text-align: center;">6</td>
-      <td><strong>SQLite Local Persistence</strong></td>
+      <td><strong>SQLite Dual Persistence</strong></td>
       <td style="text-align: center;"><span class="badge-complete">✅ Complete</span></td>
-      <td>Persistent SQLite database (<code>sqflite: ^2.4.2+1</code>) with indexed transaction date, surviving complete application restarts.</td>
+      <td>Native Android/iOS uses <code>sqflite: ^2.4.2+1</code>; Web uses <code>sqflite_common_ffi_web: ^1.1.1</code> (SQLite WASM + IndexedDB). Persistent schema with indexed transaction date surviving restarts and reloads.</td>
     </tr>
     <tr>
       <td style="text-align: center;">7</td>
@@ -272,6 +272,7 @@ CREATE TABLE expenses (
 );
 CREATE INDEX idx_expenses_date ON expenses (transaction_date DESC);
 </pre>
+<p style="font-size: 8.5pt; color: #475569; margin-top: 2px;"><strong>Dual SQLite Engine:</strong> Native platforms leverage <code>sqflite</code> via OS SQLite C-libraries in document storage; Web initializes <code>sqflite_common_ffi_web</code> with SQLite WebAssembly (<code>sqlite3.wasm</code>) backed by browser IndexedDB persistence.</p>
 
 <h2>4. EMPIRICAL EVIDENCE & SCREENSHOTS</h2>
 <div class="screenshot-grid">
@@ -285,7 +286,7 @@ CREATE INDEX idx_expenses_date ON expenses (transaction_date DESC);
   </div>
   <div class="screenshot-card">
     <img src="screenshots/04_review_screen.png" alt="Review Expense">
-    <div class="screenshot-caption">Fig 4.3: Review Form & Measured OCR Latency</div>
+    <div class="screenshot-caption">Fig 4.3: Review Form & 'Detected' Status</div>
   </div>
   <div class="screenshot-card">
     <img src="screenshots/05_analytics_charts.png" alt="Analytics Charts">
@@ -340,7 +341,7 @@ CREATE INDEX idx_expenses_date ON expenses (transaction_date DESC);
     <tr>
       <td><strong>Automated Unit & Widget Tests</strong></td>
       <td><code>flutter test</code></td>
-      <td><strong>29 / 29 Passed (100% Success)</strong></td>
+      <td><strong>30 / 30 Passed (100% Success)</strong></td>
     </tr>
     <tr>
       <td><strong>Static Code Analysis</strong></td>

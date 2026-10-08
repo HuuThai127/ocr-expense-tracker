@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/utils/currency_formatter.dart';
@@ -101,13 +102,13 @@ class HomeScreen extends StatelessWidget {
                             color: Colors.white.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(Icons.shield_outlined, size: 12, color: Colors.white),
-                              SizedBox(width: 4),
+                              const Icon(Icons.shield_outlined, size: 12, color: Colors.white),
+                              const SizedBox(width: 4),
                               Text(
-                                'On-Device AI',
-                                style: TextStyle(
+                                kIsWeb ? 'Local Storage' : 'On-Device AI',
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -130,7 +131,9 @@ class HomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${controller.expenses.length} receipts processed offline via ML Kit',
+                      kIsWeb
+                          ? '${controller.expenses.length} receipts stored locally • Web Demo'
+                          : '${controller.expenses.length} receipts processed offline via ML Kit',
                       style: const TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                   ],

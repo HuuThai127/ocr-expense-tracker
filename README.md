@@ -1,6 +1,6 @@
 # OCR Expense Tracker (Mini-Project 3)
 
-[![Flutter Test](https://img.shields.io/badge/Flutter%20Test-29%2F29%20Passed-emerald.svg)](test)
+[![Flutter Test](https://img.shields.io/badge/Flutter%20Test-30%2F30%20Passed-emerald.svg)](test)
 [![Dart Analyze](https://img.shields.io/badge/Dart%20Analyze-0%20Issues-brightgreen.svg)](analysis_options.yaml)
 [![Android Build](https://img.shields.io/badge/Android%20APK-Built%20Successfully-blue.svg)](build/app/outputs/flutter-apk/app-debug.apk)
 [![On-Device AI](https://img.shields.io/badge/ML%20Kit-100%25%20On--Device-indigo.svg)](lib/services/ocr/receipt_ocr_service.dart)
@@ -18,7 +18,7 @@ Receipts are photographed or cropped, recognized 100% locally on-device without 
 * **💻 GitHub Repository:** [https://github.com/HuuThai127/ocr-expense-tracker](https://github.com/HuuThai127/ocr-expense-tracker)
 * **🔗 Live Web Demonstration:** [https://ocr-expense-tracker-phi.vercel.app](https://ocr-expense-tracker-phi.vercel.app) *(Flutter Web release with responsive dashboard, history, custom charts, and interactive demo sample receipt flow)*
 * **📦 Android Debug APK:** `build/app/outputs/flutter-apk/app-debug.apk` (192 MB)
-* **🎥 Demonstration Video Walkthrough:** *[Pending Upload — Native Android 2–3 minute recording walkthrough prepared]*
+* **🎥 Demonstration Video Walkthrough:** [Google Drive Walkthrough Video](https://drive.google.com/file/d/1kPP8WbzLUPV_41wJLC7jazh56tFQPFaX/view?usp=sharing)
 * **📄 Technical Report PDF:** [REPORT.pdf](REPORT.pdf) (3-page technical report)
 * **📄 Technical Report Markdown:** [REPORT.md](REPORT.md)
 
@@ -78,7 +78,7 @@ Every single item in the project rubric has been systematically built and verifi
 - [x] **Honest OCR Latency Reporting**: The project implements 100% on-device OCR using Google ML Kit. Measured latency on the verification environment was **1,241 ms** for native high-resolution camera frames and **2,194 ms** for dense sample bitmaps (above the sub-100ms ideal target, but completely offline, local, and private).
 
 ### VERIFICATION & SUBMISSION
-- [x] **flutter test passes**: 29 / 29 unit and widget tests pass with 0 failures.
+- [x] **flutter test passes**: 30 / 30 unit and widget tests pass with 0 failures.
 - [x] **dart analyze passes without major errors**: 0 linter errors, 0 warnings.
 - [x] **Android debug build succeeds**: Successfully built `build/app/outputs/flutter-apk/app-debug.apk` (192 MB).
 - [x] **Flutter Web release built & deployed**: Production build served live at `https://ocr-expense-tracker-phi.vercel.app`.
@@ -174,13 +174,19 @@ lib/
 
 ---
 
-## ⚠️ Honest Platform & Hardware Notes
+## ⚠️ Honest Platform & Hardware Adaptations
 
 1. **Google ML Kit Vision Engine**:
    - **Supported Platforms**: Native Android (API 21+) and native iOS. Runs 100% on-device using bundled/unbundled ML Kit models.
    - **Web / Demo Environments**: Google ML Kit native binary does not provide a browser runtime. The deployed Flutter Web version provides an interactive **Sample Receipt Flow** allowing evaluators to test receipt parsing heuristics, review screens, and chart interactions without requiring a physical camera.
-2. **Camera Hardware Controls**:
-   - Hardware flash torch and physical auto-focus rely on physical rear cameras. On simulators or devices lacking flash hardware, exceptions are trapped gracefully and the UI notifies the user without crashing.
+
+2. **Camera Hardware Controls (Native vs. Web)**:
+   - **Native Android / iOS**: Direct hardware camera pipeline via CameraX / AVFoundation, autofocus & tap-to-focus with animated yellow focus ring (`setFocusPoint`), hardware flash mode control (`FlashMode.torch / auto / off`).
+   - **Web (iPhone Safari / Chrome)**: Live HTML5 `getUserMedia` camera preview rendered inline inside the Flutter viewfinder container using WebKit-specific video configuration (`playsinline`, `webkit-playsinline`, blocked AVPlayer native fullscreen, auto-resume lifecycle). Hardware torch and tap-to-focus are gracefully disabled on Web due to browser Web API constraints, with clear user feedback.
+
+3. **Dual SQLite Storage Architecture (Native vs. Web)**:
+   - **Native Android / iOS**: Uses `sqflite: ^2.4.2+1` connecting to native OS SQLite C-libraries via platform channels (`MethodChannel`), storing `ocr_expenses.db` in app document storage (`getDatabasesPath()`).
+   - **Flutter Web**: Uses `sqflite_common_ffi_web: ^1.1.1` running SQLite WebAssembly (`sqlite3.wasm`) inside a Web/Shared Worker (`sqflite_sw.js`). All table writes, indexes, and aggregation queries are persisted locally in the browser's IndexedDB virtual file system (`IndexedDbFileSystem`), surviving page reloads without code duplication.
 
 ---
 
@@ -190,7 +196,7 @@ lib/
 ```bash
 flutter test
 ```
-*Result: 29 / 29 unit and widget tests pass.*
+*Result: 30 / 30 unit and widget tests pass.*
 
 ### 2. Static Code Analysis
 ```bash
@@ -216,7 +222,7 @@ flutter build web --release
 
 - **GitHub Repository**: [https://github.com/HuuThai127/ocr-expense-tracker](https://github.com/HuuThai127/ocr-expense-tracker)
 - **Live Web Demo**: [https://ocr-expense-tracker-phi.vercel.app](https://ocr-expense-tracker-phi.vercel.app)
-- **Demo Video Walkthrough (2–3 minutes)**: *Flow prepared and verified on device/emulator (awaiting recording upload URL)*
+- **Demo Video Walkthrough (2–3 minutes)**: [Google Drive Walkthrough Video](https://drive.google.com/file/d/1kPP8WbzLUPV_41wJLC7jazh56tFQPFaX/view?usp=sharing)
 - **Technical Report Markdown**: [REPORT.md](REPORT.md)
 - **Technical Report PDF (3 Pages)**: [REPORT.pdf](REPORT.pdf)
 - **Debug APK Artifact**: `build/app/outputs/flutter-apk/app-debug.apk` (192 MB)

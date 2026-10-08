@@ -223,9 +223,9 @@ class _ReviewExpenseScreenState extends State<ReviewExpenseScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Raw ML Kit Extracted Text',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                      Text(
+                        kIsWeb ? 'Raw Extracted OCR Text' : 'Raw ML Kit Extracted Text',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                       ),
                       IconButton(
                         icon: const Icon(Icons.close_rounded),
@@ -234,7 +234,9 @@ class _ReviewExpenseScreenState extends State<ReviewExpenseScreen> {
                     ],
                   ),
                   Text(
-                    'Measured OCR Latency: ${widget.latencyMs}ms on-device',
+                    kIsWeb
+                        ? 'Measured Parsing Latency: ${widget.latencyMs}ms (Web Demo)'
+                        : 'Measured OCR Latency: ${widget.latencyMs}ms on-device',
                     style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                   ),
                   const Divider(height: 24),

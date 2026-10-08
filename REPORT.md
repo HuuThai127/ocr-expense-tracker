@@ -12,7 +12,7 @@
 * **🔗 Live Demo / Web App:** https://ocr-expense-tracker-phi.vercel.app  
   *(Native Android Debug APK: `build/app/outputs/flutter-apk/app-debug.apk`, 192 MB)*
 * **💻 GitHub Repository:** https://github.com/HuuThai127/ocr-expense-tracker
-* **🎥 Video Demo Walkthrough:** *[Pending Upload — Video recording script prepared for native Android device walkthrough]*
+* **🎥 Video Demo Walkthrough:** *[https://drive.google.com/file/d/1kPP8WbzLUPV_41wJLC7jazh56tFQPFaX/view?usp=sharing]*
 
 ---
 
@@ -61,8 +61,11 @@ lib/
 └── widgets/              # Reusable CategoryChip, ExpenseCard, StatCard, EmptyState
 ```
 
-### 3.2 Database Schema & Aggregation Queries
-SQLite database `ocr_expenses.db` stores expenses locally in app storage:
+### 3.2 Dual SQLite Architecture & Schema
+The application uses a unified schema and DAO across both platforms while adapting the underlying SQLite driver:
+* **Native Android / iOS**: Uses `sqflite: ^2.4.2+1` connecting to native OS SQLite C-libraries via platform channels (`MethodChannel`), storing `ocr_expenses.db` in app document storage (`getDatabasesPath()`).
+* **Flutter Web**: Uses `sqflite_common_ffi_web: ^1.1.1` running SQLite WebAssembly (`sqlite3.wasm`) inside a Web/Shared Worker (`sqflite_sw.js`). All table writes, indexes, and aggregation queries are persisted locally in the browser's IndexedDB virtual file system (`IndexedDbFileSystem`), surviving page reloads without code duplication.
+
 ```sql
 CREATE TABLE expenses (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -81,7 +84,11 @@ Aggregations for the charts are performed efficiently in SQL:
 - **Category breakdown**: `SELECT category, SUM(total_amount) as total FROM expenses GROUP BY category;`
 - **Weekly breakdown**: `SELECT * FROM expenses WHERE transaction_date >= :startOfWeek AND transaction_date < :endOfWeek;`
 
-### 3.3 CustomPainter Mathematical Formulations
+### 3.3 Camera Pipeline & Hardware Adaptation (Native vs. Web)
+* **Native (Android / iOS)**: Direct hardware camera capture via CameraX / AVFoundation, autofocus & interactive tap-to-focus with animated yellow focus ring (`setFocusPoint`), hardware flash mode control (`FlashMode.torch / auto / off`).
+* **Web (iPhone Safari / Chrome)**: Live HTML5 `getUserMedia` camera preview rendered inline inside the Flutter viewfinder container using WebKit-specific video configuration (`playsinline`, `webkit-playsinline`, blocked AVPlayer native fullscreen, auto-resume lifecycle). Hardware torch and tap-to-focus are gracefully disabled on Web due to browser Web API constraints, with clear user feedback.
+
+### 3.4 CustomPainter Mathematical Formulations
 - **Donut Arc Sweeping**: Each segment $i$ sweeps an angle $\theta_i = 2\pi \cdot (\text{percentage}_i / 100) \cdot \alpha(t)$, where $\alpha(t) \in [0, 1]$ is the ease-out cubic animation curve.
 - **Radial Segment Pop-out**: The active segment is translated outwards by displacement distance $d = 6.0\text{px}$ along its angular bisector $\phi_i = \theta_{\text{start}} + \theta_i / 2$:
   $$\Delta x = d \cdot \cos(\phi_i), \quad \Delta y = d \cdot \sin(\phi_i)$$
@@ -93,15 +100,15 @@ Aggregations for the charts are performed efficiently in SQL:
 
 ### Screen 1: Dashboard & Total Spending Overview
 ![Dashboard](screenshots/01_dashboard.png)  
-*Figure 4.1: Dashboard displaying Total Monthly Spending in Vietnamese Dong, On-Device AI status badge, category summary chips with distinct theme colors, recent receipts, and quick scan triggers.*
+*Figure 4.1: Dashboard displaying Total Monthly Spending in Vietnamese Dong, On-Device AI / Local Storage status badge, category summary chips with distinct theme colors, recent receipts, and quick scan triggers.*
 
 ### Screen 2: Real Camera Framing Overlay & Tap-to-Focus
 ![Camera Overlay](screenshots/02_camera_overlay.png)  
 *Figure 4.2: Camera viewfinder featuring custom Framing Viewfinder Overlay with indigo corner brackets, active yellow tap-to-focus ring, flash toggle, and sample receipt demo selector.*
 
-### Screen 3: Review Expense & Confidence Status
+### Screen 3: Review Expense & Detection Status
 ![Review Screen](screenshots/04_review_screen.png)  
-*Figure 4.3: Review screen displaying detected receipt thumbnail, 'Detected (High Confidence)' status, measured on-device OCR latency, editable form fields, and category selector chips.*
+*Figure 4.3: Review screen displaying detected receipt thumbnail, 'Detected' status badge (All receipt fields recognized), measured inference latency, editable form fields, and category selector chips.*
 
 ### Screen 4: Spending Analytics (Animated Donut & Bar Charts)
 ![Analytics Charts](screenshots/05_analytics_charts.png)  
@@ -136,7 +143,7 @@ Aggregations for the charts are performed efficiently in SQL:
 ### Verification Summary
 | Verification Step | Command / Tool | Result |
 |---|---|---|
-| **Automated Tests** | `flutter test` | **29 / 29 Passed (100%)** |
+| **Automated Tests** | `flutter test` | **30 / 30 Passed (100%)** |
 | **Static Code Analysis** | `dart analyze` | **0 Issues Found (Clean)** |
 | **Android Build** | `flutter build apk --debug` | **Built `app-debug.apk` (192 MB)** |
 | **Web Release** | `flutter build web --release` | **Deployed to Vercel (Production Live)** |
